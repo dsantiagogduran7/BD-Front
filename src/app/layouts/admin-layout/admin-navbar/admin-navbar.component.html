@@ -1,0 +1,13 @@
+<div class="navbar">
+  <h3>Panel Administrador</h3>
+  <div class="user-info">
+    <div class="user-chip">
+      <div class="user-avatar">{{ session.iniciales() }}</div>
+      <div class="user-details">
+        <span class="user-name">{{ session.nombreCompleto() }}</span>
+        <span class="user-rol">{{ session.rol() }}</span>
+      </div>
+    </div>
+    <button class="btn-logout" (click)="cerrarSesion()">Cerrar sesión</button>
+  </div>
+</div>

@@ -1,0 +1,26 @@
+@import '../miembros-page/miembros-page.component.css';
+
+.precio-cell {
+  font-weight: 700;
+  color: #1b5e20;
+}
+
+.metodo-efectivo {
+  background: #e8f5e9;
+  color: #1b5e20;
+}
+
+.metodo-tarjeta_credito {
+  background: #e3f2fd;
+  color: #1565c0;
+}
+
+.metodo-tarjeta_debito {
+  background: #fff3e0;
+  color: #ef6c00;
+}
+
+.metodo-transferencia {
+  background: #f3e5f5;
+  color: #6a1b9a;
+}

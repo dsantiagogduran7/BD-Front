@@ -1,0 +1,104 @@
+@import '../miembros-page/miembros-page.component.css';
+
+.btn-primary {
+
+  background: #1565c0;
+
+  color: white;
+
+  border: none;
+
+  padding: 12px 18px;
+
+  border-radius: 10px;
+
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition: 0.2s;
+}
+
+.btn-primary:hover {
+
+  background: #0d47a1;
+}
+
+.pagination {
+
+  margin-top: 20px;
+
+  display: flex;
+
+  justify-content: center;
+
+  align-items: center;
+
+  gap: 16px;
+}
+
+.btn-page {
+
+  border: none;
+
+  background: #1565c0;
+
+  color: white;
+
+  padding: 10px 16px;
+
+  border-radius: 8px;
+
+  cursor: pointer;
+
+  font-weight: 600;
+
+  transition: 0.2s;
+}
+
+.btn-page:hover {
+
+  background: #0d47a1;
+}
+
+.btn-page:disabled {
+
+  opacity: 0.5;
+
+  cursor: not-allowed;
+}
+
+.page-info {
+
+  font-weight: 600;
+
+  color: #424242;
+}
+
+.precio-cell {
+
+  font-weight: 700;
+
+  color: #1b5e20;
+}
+
+.estado-activa {
+
+  background: #e8f5e9;
+
+  color: #1b5e20;
+}
+
+.estado-vencida {
+
+  background: #ffebee;
+
+  color: #c62828;
+}
+
+.estado-mantenimiento {
+
+  background: #fff3e0;
+
+  color: #ef6c00;
+}

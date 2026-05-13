@@ -1,0 +1,223 @@
+<div class="perfil-card">
+  <div class="perfil-avatar">{{ session.iniciales() }}</div>
+  <div class="perfil-info">
+    <span class="perfil-nombre">{{ session.nombreCompleto() }}</span>
+    <span class="perfil-rol">{{ session.rol() }}</span>
+    <span class="perfil-correo">{{ session.perfil()?.correo }}</span>
+  </div>
+  <div class="perfil-cedula">
+    <span class="cedula-label">Cédula</span>
+    <span class="cedula-valor">{{ session.perfil()?.cedula }}</span>
+  </div>
+</div>
+
+<div class="page-header">
+
+  <div class="header-left">
+    <h1>Panel Administrativo</h1>
+    <span class="total-badge">UB-Deporte</span>
+  </div>
+
+</div>
+
+<!-- Cards -->
+
+<div class="cards-grid">
+
+  <div class="dashboard-card">
+
+    <div class="card-icon miembros">
+      &#128101;
+    </div>
+
+    <div class="card-info">
+      <span class="card-value">{{ totalMiembros }}</span>
+      <span class="card-label">Miembros registrados</span>
+    </div>
+
+  </div>
+
+  <div class="dashboard-card">
+
+    <div class="card-icon entrenadores">
+      &#127947;
+    </div>
+
+    <div class="card-info">
+      <span class="card-value">{{ totalEntrenadores }}</span>
+      <span class="card-label">Entrenadores activos</span>
+    </div>
+
+  </div>
+
+  <div class="dashboard-card">
+
+    <div class="card-icon clases">
+      &#128197;
+    </div>
+
+    <div class="card-info">
+      <span class="card-value">{{ clasesProgramadas }}</span>
+      <span class="card-label">Clases programadas</span>
+    </div>
+
+  </div>
+
+  <div class="dashboard-card">
+
+    <div class="card-icon maquinas">
+      &#9881;
+    </div>
+
+    <div class="card-info">
+      <span class="card-value">{{ maquinasFueraServicio }}</span>
+      <span class="card-label">Máquinas dañadas</span>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- Alertas -->
+
+<div class="table-wrapper">
+
+  <div class="section-header">
+    <h2>Alertas del Sistema</h2>
+  </div>
+
+  <table class="data-table">
+
+    <thead>
+
+    <tr>
+      <th>Tipo</th>
+      <th>Descripción</th>
+      <th>Fecha</th>
+      <th>Estado</th>
+    </tr>
+
+    </thead>
+
+    <tbody>
+
+    <tr
+      *ngFor="let alerta of alertas"
+      class="table-row"
+    >
+
+      <td>
+
+        <div class="member-cell">
+
+          <div class="avatar tipo-{{ alerta.tipo }}">
+            {{ alerta.tipo[0].toUpperCase() }}
+          </div>
+
+          <div class="member-info">
+              <span class="member-name">
+                {{ alerta.tipo }}
+              </span>
+
+            <span class="member-sub">
+                Sistema UB-Deporte
+              </span>
+          </div>
+
+        </div>
+
+      </td>
+
+      <td>
+        {{ alerta.descripcion }}
+      </td>
+
+      <td>
+        {{ alerta.fecha }}
+      </td>
+
+      <td>
+
+          <span class="badge estado-{{ alerta.estado }}">
+            {{ alerta.estado }}
+          </span>
+
+      </td>
+
+    </tr>
+
+    </tbody>
+
+  </table>
+
+</div>
+
+<!-- Actividad reciente -->
+
+<div class="table-wrapper second-table">
+
+  <div class="section-header">
+    <h2>Actividad Reciente</h2>
+  </div>
+
+  <table class="data-table">
+
+    <thead>
+
+    <tr>
+      <th>Usuario</th>
+      <th>Rol</th>
+      <th>Acción</th>
+      <th>Fecha</th>
+    </tr>
+
+    </thead>
+
+    <tbody>
+
+    <tr
+      *ngFor="let actividad of actividades"
+      class="table-row"
+    >
+
+      <td>
+
+        <div class="member-cell">
+
+          <div class="avatar actividad">
+            {{ actividad.usuario[0] }}
+          </div>
+
+          <div class="member-info">
+              <span class="member-name">
+                {{ actividad.usuario }}
+              </span>
+
+            <span class="member-sub">
+                {{ actividad.rol }}
+              </span>
+          </div>
+
+        </div>
+
+      </td>
+
+      <td>
+        {{ actividad.rol }}
+      </td>
+
+      <td>
+        {{ actividad.accion }}
+      </td>
+
+      <td>
+        {{ actividad.fecha }}
+      </td>
+
+    </tr>
+
+    </tbody>
+
+  </table>
+
+</div>

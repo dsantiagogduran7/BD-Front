@@ -1,0 +1,62 @@
+.sidebar {
+
+  width: 250px;
+
+  background: #1b5e20;
+
+  color: white;
+
+  padding: 20px;
+}
+
+h2 {
+
+  margin-bottom: 30px;
+
+  font-size: 28px;
+}
+
+ul {
+
+  list-style: none;
+
+  padding: 0;
+}
+
+li {
+
+  padding: 12px 0;
+
+  cursor: pointer;
+
+  border-radius: 8px;
+
+  transition: 0.3s;
+}
+
+li:hover {
+
+  background: rgba(255,255,255,0.1);
+
+  padding-left: 10px;
+}
+
+a {
+
+  text-decoration: none;
+
+  color: white;
+
+  display: block;
+
+  width: 100%;
+
+  font-weight: 500;
+}
+
+a.active {
+
+  font-weight: bold;
+
+  color: #c8facc;
+}

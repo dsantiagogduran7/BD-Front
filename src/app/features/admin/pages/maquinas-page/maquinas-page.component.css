@@ -1,0 +1,23 @@
+@import '../miembros-page/miembros-page.component.css';
+
+/* Estados */
+
+.estado-operativa {
+  background: #e8f5e9;
+  color: #1b5e20;
+}
+
+.estado-en_mantenimiento {
+  background: #fff8e1;
+  color: #f57f17;
+}
+
+.estado-en_reparacion {
+  background: #fff3e0;
+  color: #ef6c00;
+}
+
+.estado-fuera_de_servicio {
+  background: #ffebee;
+  color: #c62828;
+}

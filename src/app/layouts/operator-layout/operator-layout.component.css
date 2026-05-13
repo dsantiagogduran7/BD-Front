@@ -1,0 +1,19 @@
+.layout-container {
+  display: flex;
+  height: 100vh; /* Altura total de la pantalla */
+  width: 100vw;
+  overflow: hidden;
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column; /* Apila Navbar sobre Page-Content */
+  background: #f5f7fa;
+}
+
+.page-content {
+  flex: 1;
+  padding: 24px;
+  overflow-y: auto; /* Scroll solo para el contenido, no para toda la página */
+}

@@ -1,0 +1,280 @@
+<div class="page-header">
+
+  <div class="header-left">
+    <h1>Pagos</h1>
+    <span class="total-badge">
+      {{ pagosFiltrados.length }} pagos
+    </span>
+  </div>
+
+</div>
+
+<!-- Filtros -->
+
+<div class="filtros-bar">
+
+  <div class="search-wrapper">
+
+    <span class="search-icon">
+      &#128269;
+    </span>
+
+    <input
+      type="text"
+      class="search-input"
+      placeholder="Buscar miembro, cédula o plan..."
+      [(ngModel)]="busqueda"
+    />
+
+  </div>
+
+  <select
+    class="filtro-select"
+    [(ngModel)]="filtroMetodo"
+  >
+    <option value="">Todos los métodos</option>
+    <option value="efectivo">Efectivo</option>
+    <option value="tarjeta_credito">Tarjeta Crédito</option>
+    <option value="tarjeta_debito">Tarjeta Débito</option>
+    <option value="transferencia">Transferencia</option>
+  </select>
+
+  <select
+    class="filtro-select"
+    [(ngModel)]="filtroEstado"
+  >
+    <option value="">Todos los estados</option>
+    <option value="activa">Activa</option>
+    <option value="inactiva">Inactiva</option>
+    <option value="vencida">Vencida</option>
+    <option value="suspendida">Suspendida</option>
+  </select>
+
+</div>
+
+<!-- Tabla -->
+
+<div class="table-wrapper">
+
+  <table class="data-table">
+
+    <thead>
+
+    <tr>
+      <th>ID</th>
+      <th>Miembro</th>
+      <th>Plan</th>
+      <th>Método</th>
+      <th>Valor</th>
+      <th>Fecha</th>
+      <th>Estado</th>
+      <th>Acciones</th>
+    </tr>
+
+    </thead>
+
+    <tbody>
+
+    <tr
+      *ngFor="let p of pagosFiltrados"
+      class="table-row"
+    >
+
+      <td>#{{ p.id_pago }}</td>
+
+      <td>
+
+        <div class="member-cell">
+
+          <div class="avatar">
+            {{ p.miembro[0] }}
+          </div>
+
+          <div class="member-info">
+            <span class="member-name">
+              {{ p.miembro }}
+            </span>
+
+            <span class="member-sub">
+              {{ p.cedula }}
+            </span>
+          </div>
+
+        </div>
+
+      </td>
+
+      <td>{{ p.plan }}</td>
+
+      <td>
+
+        <span class="badge metodo-{{ p.metodo_pago }}">
+          {{ p.metodo_pago.replace('_', ' ') }}
+        </span>
+
+      </td>
+
+      <td class="precio-cell">
+        {{ formatearPrecio(p.valor_pagado) }}
+      </td>
+
+      <td>{{ p.fecha_pago }}</td>
+
+      <td>
+
+        <span class="badge mem-{{ p.estado_membresia }}">
+          {{ p.estado_membresia }}
+        </span>
+
+      </td>
+
+      <td>
+
+        <button
+          class="btn-icon"
+          (click)="abrirDetalle(p)"
+        >
+          &#128065;
+        </button>
+
+      </td>
+
+    </tr>
+
+    <tr *ngIf="pagosFiltrados.length === 0">
+
+      <td colspan="8" class="empty-row">
+        No se encontraron pagos.
+      </td>
+
+    </tr>
+
+    </tbody>
+
+  </table>
+
+</div>
+
+<!-- Modal -->
+
+<div
+  class="modal-overlay"
+  *ngIf="mostrarModal"
+  (click)="cerrarModal()"
+>
+
+  <div
+    class="modal"
+    (click)="$event.stopPropagation()"
+  >
+
+    <div class="modal-header">
+
+      <h2>Detalle del Pago</h2>
+
+      <button
+        class="btn-close"
+        (click)="cerrarModal()"
+      >
+        &#10005;
+      </button>
+
+    </div>
+
+    <div
+      class="modal-body"
+      *ngIf="pagoSeleccionado"
+    >
+
+      <div class="form-section">
+
+        <h3 class="section-title">
+          Información del Pago
+        </h3>
+
+        <div class="form-grid">
+
+          <div class="form-group">
+            <label>ID Pago</label>
+            <input
+              [value]="pagoSeleccionado.id_pago"
+              disabled
+            />
+          </div>
+
+          <div class="form-group">
+            <label>Miembro</label>
+            <input
+              [value]="pagoSeleccionado.miembro"
+              disabled
+            />
+          </div>
+
+          <div class="form-group">
+            <label>Cédula</label>
+            <input
+              [value]="pagoSeleccionado.cedula"
+              disabled
+            />
+          </div>
+
+          <div class="form-group">
+            <label>Plan</label>
+            <input
+              [value]="pagoSeleccionado.plan"
+              disabled
+            />
+          </div>
+
+          <div class="form-group">
+            <label>Método de Pago</label>
+            <input
+              [value]="pagoSeleccionado.metodo_pago"
+              disabled
+            />
+          </div>
+
+          <div class="form-group">
+            <label>Fecha de Pago</label>
+            <input
+              [value]="pagoSeleccionado.fecha_pago"
+              disabled
+            />
+          </div>
+
+          <div class="form-group">
+            <label>Valor Pagado</label>
+            <input
+              [value]="formatearPrecio(pagoSeleccionado.valor_pagado)"
+              disabled
+            />
+          </div>
+
+          <div class="form-group">
+            <label>Estado Membresía</label>
+            <input
+              [value]="pagoSeleccionado.estado_membresia"
+              disabled
+            />
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="modal-footer">
+
+      <button
+        class="btn-secondary"
+        (click)="cerrarModal()"
+      >
+        Cerrar
+      </button>
+
+    </div>
+
+  </div>
+
+</div>

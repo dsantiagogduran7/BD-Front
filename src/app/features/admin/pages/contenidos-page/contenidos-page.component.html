@@ -1,0 +1,353 @@
+<div class="page-header">
+
+  <div class="header-left">
+
+    <h1>Contenidos</h1>
+
+    <span class="total-badge">
+      {{ contenidosFiltrados.length }} contenidos
+    </span>
+
+  </div>
+
+  <button
+    class="btn-primary"
+    (click)="abrirNuevo()"
+  >
+    + Nuevo Contenido
+  </button>
+
+</div>
+
+<!-- Filtros -->
+
+<div class="filtros-bar">
+
+  <div class="search-wrapper">
+
+    <span class="search-icon">
+      &#128269;
+    </span>
+
+    <input
+      type="text"
+      class="search-input"
+      placeholder="Buscar contenido..."
+      [(ngModel)]="busqueda"
+    />
+
+  </div>
+
+  <select
+    class="filtro-select"
+    [(ngModel)]="filtroTipo"
+  >
+
+    <option value="">
+      Todos los tipos
+    </option>
+
+    <option value="video">
+      Video
+    </option>
+
+    <option value="articulo">
+      Artículo
+    </option>
+
+    <option value="rutina">
+      Rutina
+    </option>
+
+    <option value="guia">
+      Guía
+    </option>
+
+  </select>
+
+</div>
+
+<!-- Tabla -->
+
+<div class="table-wrapper">
+
+  <table class="data-table">
+
+    <thead>
+
+    <tr>
+
+      <th>ID</th>
+      <th>Título</th>
+      <th>Tipo</th>
+      <th>Deporte</th>
+      <th>Fecha</th>
+      <th>Acciones</th>
+
+    </tr>
+
+    </thead>
+
+    <tbody>
+
+    <tr
+      *ngFor="let c of contenidosPaginados"
+      class="table-row"
+    >
+
+      <td>
+        #{{ c.id_contenido }}
+      </td>
+
+      <td>
+
+        <div class="member-cell">
+
+          <div class="avatar">
+            {{ c.titulo[0] }}
+          </div>
+
+          <div class="member-info">
+
+              <span class="member-name">
+                {{ c.titulo }}
+              </span>
+
+            <span class="member-sub">
+                {{ c.descripcion }}
+              </span>
+
+          </div>
+
+        </div>
+
+      </td>
+
+      <td>
+
+          <span class="badge tipo-{{ c.tipo_contenido }}">
+            {{ c.tipo_contenido }}
+          </span>
+
+      </td>
+
+      <td>
+        {{ c.deporte }}
+      </td>
+
+      <td>
+        {{ c.fecha_publicacion }}
+      </td>
+
+      <td class="acciones-cell">
+
+        <button
+          class="btn-icon edit-btn"
+          (click)="abrirEditar(c)"
+        >
+          ✏️
+        </button>
+
+        <button
+          class="btn-icon delete-btn"
+          (click)="eliminarContenido(c.id_contenido)"
+        >
+          🗑️
+        </button>
+
+      </td>
+
+    </tr>
+
+    <tr *ngIf="contenidosPaginados.length === 0">
+
+      <td colspan="6" class="empty-row">
+        No se encontraron contenidos.
+      </td>
+
+    </tr>
+
+    </tbody>
+
+  </table>
+
+</div>
+
+<!-- Paginación -->
+
+<div class="pagination">
+
+  <button
+    class="btn-page"
+    (click)="cambiarPagina(paginaActual - 1)"
+    [disabled]="paginaActual === 1"
+  >
+    Anterior
+  </button>
+
+  <span class="page-info">
+
+    Página {{ paginaActual }}
+    de {{ totalPaginas }}
+
+  </span>
+
+  <button
+    class="btn-page"
+    (click)="cambiarPagina(paginaActual + 1)"
+    [disabled]="paginaActual === totalPaginas"
+  >
+    Siguiente
+  </button>
+
+</div>
+
+<!-- Modal -->
+
+<div
+  class="modal-overlay"
+  *ngIf="mostrarModal"
+  (click)="cerrarModal()"
+>
+
+  <div
+    class="modal"
+    (click)="$event.stopPropagation()"
+  >
+
+    <div class="modal-header">
+
+      <h2>
+
+        {{
+          modoEdicion
+            ? 'Editar Contenido'
+            : 'Nuevo Contenido'
+        }}
+
+      </h2>
+
+      <button
+        class="btn-close"
+        (click)="cerrarModal()"
+      >
+        &#10005;
+      </button>
+
+    </div>
+
+    <div class="modal-body">
+
+      <div class="form-section">
+
+        <div class="form-grid">
+
+          <div class="form-group">
+
+            <label>Título</label>
+
+            <input
+              type="text"
+              [(ngModel)]="contenidoSeleccionado.titulo"
+            />
+
+          </div>
+
+          <div class="form-group">
+
+            <label>Tipo</label>
+
+            <select
+              [(ngModel)]="contenidoSeleccionado.tipo_contenido"
+            >
+
+              <option value="video">
+                Video
+              </option>
+
+              <option value="articulo">
+                Artículo
+              </option>
+
+              <option value="rutina">
+                Rutina
+              </option>
+
+              <option value="guia">
+                Guía
+              </option>
+
+            </select>
+
+          </div>
+
+          <div class="form-group">
+
+            <label>Deporte</label>
+
+            <input
+              type="text"
+              [(ngModel)]="contenidoSeleccionado.deporte"
+            />
+
+          </div>
+
+          <div class="form-group">
+
+            <label>Fecha</label>
+
+            <input
+              type="date"
+              [(ngModel)]="contenidoSeleccionado.fecha_publicacion"
+            />
+
+          </div>
+
+          <div class="form-group full-width">
+
+            <label>URL Recurso</label>
+
+            <input
+              type="text"
+              [(ngModel)]="contenidoSeleccionado.url_recurso"
+            />
+
+          </div>
+
+          <div class="form-group full-width">
+
+            <label>Descripción</label>
+
+            <textarea
+              [(ngModel)]="contenidoSeleccionado.descripcion"
+            ></textarea>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="modal-footer">
+
+      <button
+        class="btn-secondary"
+        (click)="cerrarModal()"
+      >
+        Cancelar
+      </button>
+
+      <button
+        class="btn-primary"
+        (click)="guardarContenido()"
+      >
+        Guardar
+      </button>
+
+    </div>
+
+  </div>
+
+</div>

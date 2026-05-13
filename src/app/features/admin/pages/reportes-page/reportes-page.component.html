@@ -1,0 +1,210 @@
+<div class="page-header">
+
+  <div class="header-left">
+
+    <h1>Reportes</h1>
+
+    <span class="total-badge">
+      {{ datosFiltrados.length }} registros
+    </span>
+
+  </div>
+
+  <button
+    class="btn-primary"
+    (click)="exportarPDF()"
+  >
+    Exportar PDF
+  </button>
+
+</div>
+
+<!-- Filtros -->
+
+<div class="filtros-bar">
+
+  <select
+    class="filtro-select"
+    [(ngModel)]="tipoReporte"
+    (change)="cambiarTipoReporte()"
+  >
+
+    <option value="pagos">
+      Pagos
+    </option>
+
+    <option value="miembros">
+      Miembros
+    </option>
+
+    <option value="entrenadores">
+      Entrenadores
+    </option>
+
+    <option value="maquinas">
+      Máquinas
+    </option>
+
+  </select>
+
+  <div class="search-wrapper">
+
+    <span class="search-icon">
+      &#128269;
+    </span>
+
+    <input
+      type="text"
+      class="search-input"
+      placeholder="Buscar..."
+      [(ngModel)]="busqueda"
+    />
+
+  </div>
+
+  <select
+    class="filtro-select"
+    [(ngModel)]="filtroEstado"
+  >
+
+    <option value="">
+      Todos los estados
+    </option>
+
+    <option value="activa">
+      Activa
+    </option>
+
+    <option value="vencida">
+      Vencida
+    </option>
+
+    <option value="mantenimiento">
+      Mantenimiento
+    </option>
+
+  </select>
+
+</div>
+
+<!-- Tabla -->
+
+<div class="table-wrapper">
+
+  <table class="data-table">
+
+    <thead>
+
+    <tr>
+
+      <th>ID</th>
+      <th>Nombre</th>
+      <th>Detalle</th>
+      <th>Estado</th>
+      <th>Fecha</th>
+      <th>Valor</th>
+
+    </tr>
+
+    </thead>
+
+    <tbody>
+
+    <tr
+      *ngFor="let d of datosPaginados"
+      class="table-row"
+    >
+
+      <td>#{{ d.id }}</td>
+
+      <td>
+
+        <div class="member-cell">
+
+          <div class="avatar">
+            {{ d.nombre[0] }}
+          </div>
+
+          <div class="member-info">
+
+              <span class="member-name">
+                {{ d.nombre }}
+              </span>
+
+          </div>
+
+        </div>
+
+      </td>
+
+      <td>
+        {{ d.detalle }}
+      </td>
+
+      <td>
+
+          <span
+            class="badge estado-{{ d.estado }}"
+          >
+            {{ d.estado }}
+          </span>
+
+      </td>
+
+      <td>
+        {{ d.fecha }}
+      </td>
+
+      <td class="precio-cell">
+
+        {{ formatearPrecio(d.valor) }}
+
+      </td>
+
+    </tr>
+
+    <tr *ngIf="datosPaginados.length === 0">
+
+      <td
+        colspan="6"
+        class="empty-row"
+      >
+        No se encontraron registros.
+      </td>
+
+    </tr>
+
+    </tbody>
+
+  </table>
+
+</div>
+
+<!-- Paginación -->
+
+<div class="pagination">
+
+  <button
+    class="btn-page"
+    (click)="cambiarPagina(paginaActual - 1)"
+    [disabled]="paginaActual === 1"
+  >
+    Anterior
+  </button>
+
+  <span class="page-info">
+
+    Página {{ paginaActual }}
+    de {{ totalPaginas }}
+
+  </span>
+
+  <button
+    class="btn-page"
+    (click)="cambiarPagina(paginaActual + 1)"
+    [disabled]="paginaActual === totalPaginas"
+  >
+    Siguiente
+  </button>
+
+</div>

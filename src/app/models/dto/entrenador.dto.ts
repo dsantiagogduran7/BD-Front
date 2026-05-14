@@ -2,6 +2,8 @@ import { PersonaDto } from './persona.dto';
 
 export interface EntrenadorDto extends PersonaDto {
 
+  password?: string;
+
   tipo_entrenamiento:
     | 'fuerza'
     | 'aerobico'
@@ -19,6 +21,6 @@ export interface EntrenadorDto extends PersonaDto {
 
   fecha_ingreso_sis: string;
 
-  deportes?: string[];
+  deportes?: { id_deporte: number; nombre: string }[];
 
 }

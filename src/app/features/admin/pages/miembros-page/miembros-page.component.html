@@ -137,7 +137,7 @@
             <label>Teléfono</label>
             <input type="text" [(ngModel)]="miembroSeleccionado.telefono" [disabled]="!modoEdicion" />
           </div>
-          <div class="form-group" *ngIf="modoEdicion">
+          <div class="form-group" *ngIf="esNuevo">
             <label>Contraseña</label>
             <input type="password" [(ngModel)]="miembroSeleccionado.password" />
           </div>
@@ -180,8 +180,11 @@
 
     </div>
 
+    <div class="error-validacion" *ngIf="errorValidacion">{{ errorValidacion }}</div>
+
     <div class="modal-footer">
       <button class="btn-secondary" (click)="cerrarModal()">Cancelar</button>
+      <button *ngIf="!modoEdicion" class="btn-danger" (click)="eliminar(miembroSeleccionado!.cedula)">Eliminar</button>
       <button *ngIf="!modoEdicion" class="btn-primary" (click)="modoEdicion = true">Editar</button>
       <button *ngIf="modoEdicion" class="btn-primary" (click)="guardar()">Guardar</button>
     </div>

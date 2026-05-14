@@ -78,7 +78,7 @@
       </td>
       <td>
         <div class="deportes-cell">
-          <span *ngFor="let d of e.deportes" class="deporte-tag">{{ d }}</span>
+          <span *ngFor="let d of e.deportes" class="deporte-tag">{{ d.nombre }}</span>
         </div>
       </td>
       <td>
@@ -137,6 +137,10 @@
             <label>Teléfono</label>
             <input type="text" [(ngModel)]="entrenadorSeleccionado.telefono" [disabled]="!modoEdicion" />
           </div>
+          <div class="form-group" *ngIf="esNuevo">
+            <label>Contraseña</label>
+            <input type="password" [(ngModel)]="entrenadorSeleccionado.password" />
+          </div>
         </div>
       </div>
 
@@ -173,17 +177,36 @@
         </div>
       </div>
 
-      <div class="form-section" *ngIf="entrenadorSeleccionado.deportes && entrenadorSeleccionado.deportes.length > 0">
+      <!-- Vista: deportes del entrenador (solo lectura) -->
+      <div class="form-section" *ngIf="!modoEdicion && entrenadorSeleccionado.deportes && entrenadorSeleccionado.deportes.length > 0">
         <h3 class="section-title">Deportes de Especialización</h3>
         <div class="deportes-list">
-          <span *ngFor="let d of entrenadorSeleccionado.deportes" class="deporte-tag-lg">{{ d }}</span>
+          <span *ngFor="let d of entrenadorSeleccionado.deportes" class="deporte-tag-lg">{{ d.nombre }}</span>
+        </div>
+      </div>
+
+      <!-- Edición: checkboxes de deportes -->
+      <div class="form-section" *ngIf="modoEdicion">
+        <h3 class="section-title">Deportes de Especialización</h3>
+        <div class="deportes-checks">
+          <label *ngFor="let d of deportesDisponibles" class="deporte-check-label">
+            <input
+              type="checkbox"
+              [checked]="isDeporteSeleccionado(d.id_deporte)"
+              (change)="toggleDeporte(d)"
+            />
+            {{ d.nombre }}
+          </label>
         </div>
       </div>
 
     </div>
 
+    <div class="error-validacion" *ngIf="errorValidacion">{{ errorValidacion }}</div>
+
     <div class="modal-footer">
       <button class="btn-secondary" (click)="cerrarModal()">Cancelar</button>
+      <button *ngIf="!modoEdicion" class="btn-danger" (click)="eliminar(entrenadorSeleccionado!.cedula)">Eliminar</button>
       <button *ngIf="!modoEdicion" class="btn-primary" (click)="modoEdicion = true">Editar</button>
       <button *ngIf="modoEdicion" class="btn-primary" (click)="guardar()">Guardar</button>
     </div>

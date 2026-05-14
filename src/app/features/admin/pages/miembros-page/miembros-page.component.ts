@@ -19,8 +19,10 @@ export class MiembrosPageComponent implements OnInit {
   mostrarModal: boolean = false;
   miembroSeleccionado: MiembroDto | null = null;
   modoEdicion: boolean = false;
+  esNuevo: boolean = false;
   cargando: boolean = false;
   error: string = '';
+  errorValidacion: string = '';
 
   miembros: MiembroDto[] = [];
 
@@ -58,6 +60,8 @@ export class MiembrosPageComponent implements OnInit {
   abrirDetalle(miembro: MiembroDto) {
     this.miembroSeleccionado = { ...miembro };
     this.modoEdicion = false;
+    this.esNuevo = false;
+    this.errorValidacion = '';
     this.mostrarModal = true;
   }
 
@@ -70,16 +74,40 @@ export class MiembrosPageComponent implements OnInit {
       membresia_estado: 'inactiva'
     };
     this.modoEdicion = true;
+    this.esNuevo = true;
+    this.errorValidacion = '';
     this.mostrarModal = true;
   }
 
   cerrarModal() {
     this.mostrarModal = false;
     this.miembroSeleccionado = null;
+    this.esNuevo = false;
+    this.errorValidacion = '';
+  }
+
+  private validar(): string {
+    const m = this.miembroSeleccionado!;
+    if (!m.cedula?.trim()) return 'La cédula es obligatoria.';
+    if (!m.primer_nombre?.trim()) return 'El primer nombre es obligatorio.';
+    if (!m.primer_apellido?.trim()) return 'El primer apellido es obligatorio.';
+    if (!m.segundo_apellido?.trim()) return 'El segundo apellido es obligatorio.';
+    if (!m.correo?.trim()) return 'El correo es obligatorio.';
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(m.correo)) return 'El correo no tiene un formato válido.';
+    if (!m.telefono?.trim()) return 'El teléfono es obligatorio.';
+    if (!m.fecha_nacimiento) return 'La fecha de nacimiento es obligatoria.';
+    if (!m.altura || m.altura <= 0) return 'La altura debe ser mayor a 0.';
+    if (!m.peso_actual || m.peso_actual <= 0) return 'El peso debe ser mayor a 0.';
+    if (this.esNuevo && !m.password?.trim()) return 'La contraseña es obligatoria.';
+    return '';
   }
 
   guardar() {
     if (!this.miembroSeleccionado) return;
+    const msg = this.validar();
+    if (msg) { this.errorValidacion = msg; return; }
+    this.errorValidacion = '';
+
     const payload = {
       cedula: this.miembroSeleccionado.cedula,
       primer_nombre: this.miembroSeleccionado.primer_nombre,
@@ -94,13 +122,16 @@ export class MiembrosPageComponent implements OnInit {
       peso_actual: this.miembroSeleccionado.peso_actual,
       nivel_experiencia: this.miembroSeleccionado.nivel_experiencia
     };
-    const obs = this.modoEdicion && this.miembros.find(m => m.cedula === this.miembroSeleccionado!.cedula)
-      ? this.miembrosApi.actualizar(this.miembroSeleccionado.cedula, payload)
-      : this.miembrosApi.crear(payload);
+
+    const obs = this.esNuevo
+      ? this.miembrosApi.crear(payload)
+      : this.miembrosApi.actualizar(this.miembroSeleccionado.cedula, payload);
 
     obs.subscribe({
       next: () => { this.cerrarModal(); this.cargarMiembros(); },
-      error: () => { alert('Error al guardar el miembro.'); }
+      error: (err) => {
+        this.errorValidacion = err?.error?.error || 'Error al guardar. Verifica que los datos sean correctos.';
+      }
     });
   }
 
@@ -108,7 +139,9 @@ export class MiembrosPageComponent implements OnInit {
     if (!confirm('¿Desea eliminar este miembro?')) return;
     this.miembrosApi.eliminar(cedula).subscribe({
       next: () => { this.cerrarModal(); this.cargarMiembros(); },
-      error: () => { alert('Error al eliminar el miembro.'); }
+      error: (err) => {
+        this.errorValidacion = err?.error?.error || 'Error al eliminar el miembro.';
+      }
     });
   }
 

@@ -2,22 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MiembrosApiService } from '../../../../core/services/api/miembros-api.service';
-
-interface Miembro {
-  cedula: string;
-  primer_nombre: string;
-  segundo_nombre?: string;
-  primer_apellido: string;
-  segundo_apellido: string;
-  correo: string;
-  telefono: string;
-  fecha_nacimiento: string;
-  altura: number;
-  peso_actual: number;
-  nivel_experiencia: 'novato' | 'avanzado' | 'profesional';
-  membresia_estado?: 'activa' | 'inactiva' | 'vencida' | 'suspendida';
-  plan_nombre?: string;
-}
+import { MiembroDto } from '../../../../models/dto/miembro.dto';
 
 @Component({
   selector: 'app-miembros',
@@ -32,12 +17,12 @@ export class MiembrosPageComponent implements OnInit {
   filtroExperiencia: string = '';
   filtroMembresia: string = '';
   mostrarModal: boolean = false;
-  miembroSeleccionado: Miembro | null = null;
+  miembroSeleccionado: MiembroDto | null = null;
   modoEdicion: boolean = false;
   cargando: boolean = false;
   error: string = '';
 
-  miembros: Miembro[] = [];
+  miembros: MiembroDto[] = [];
 
   constructor(private miembrosApi: MiembrosApiService) {}
 
@@ -50,7 +35,7 @@ export class MiembrosPageComponent implements OnInit {
     this.error = '';
     this.miembrosApi.listarTodos().subscribe({
       next: (data) => {
-        this.miembros = data as Miembro[];
+        this.miembros = data as MiembroDto[];
         this.cargando = false;
       },
       error: () => {
@@ -60,7 +45,7 @@ export class MiembrosPageComponent implements OnInit {
     });
   }
 
-  get miembrosFiltrados(): Miembro[] {
+  get miembrosFiltrados(): MiembroDto[] {
     return this.miembros.filter(m => {
       const nombreCompleto = `${m.primer_nombre} ${m.primer_apellido} ${m.segundo_apellido}`.toLowerCase();
       const coincideBusqueda = !this.busqueda || nombreCompleto.includes(this.busqueda.toLowerCase()) || m.cedula.includes(this.busqueda);
@@ -70,7 +55,7 @@ export class MiembrosPageComponent implements OnInit {
     });
   }
 
-  abrirDetalle(miembro: Miembro) {
+  abrirDetalle(miembro: MiembroDto) {
     this.miembroSeleccionado = { ...miembro };
     this.modoEdicion = false;
     this.mostrarModal = true;
@@ -79,7 +64,8 @@ export class MiembrosPageComponent implements OnInit {
   nuevoMiembro() {
     this.miembroSeleccionado = {
       cedula: '', primer_nombre: '', primer_apellido: '', segundo_apellido: '',
-      correo: '', telefono: '', fecha_nacimiento: '',
+      correo: '', telefono: '', fecha_nacimiento: '', rol: 'miembro',
+      password: '',
       altura: 0, peso_actual: 0, nivel_experiencia: 'novato',
       membresia_estado: 'inactiva'
     };
@@ -103,12 +89,12 @@ export class MiembrosPageComponent implements OnInit {
       correo: this.miembroSeleccionado.correo,
       telefono: this.miembroSeleccionado.telefono,
       fecha_nacimiento: this.miembroSeleccionado.fecha_nacimiento,
+      password: this.miembroSeleccionado.password,
       altura: this.miembroSeleccionado.altura,
       peso_actual: this.miembroSeleccionado.peso_actual,
       nivel_experiencia: this.miembroSeleccionado.nivel_experiencia
     };
-    const existente = this.miembros.find(m => m.cedula === this.miembroSeleccionado!.cedula);
-    const obs = existente
+    const obs = this.modoEdicion && this.miembros.find(m => m.cedula === this.miembroSeleccionado!.cedula)
       ? this.miembrosApi.actualizar(this.miembroSeleccionado.cedula, payload)
       : this.miembrosApi.crear(payload);
 
@@ -126,7 +112,7 @@ export class MiembrosPageComponent implements OnInit {
     });
   }
 
-  getNombreCompleto(m: Miembro): string {
+  getNombreCompleto(m: MiembroDto): string {
     return `${m.primer_nombre}${m.segundo_nombre ? ' ' + m.segundo_nombre : ''} ${m.primer_apellido} ${m.segundo_apellido}`;
   }
 

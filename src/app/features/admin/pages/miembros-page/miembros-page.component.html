@@ -137,6 +137,10 @@
             <label>Teléfono</label>
             <input type="text" [(ngModel)]="miembroSeleccionado.telefono" [disabled]="!modoEdicion" />
           </div>
+          <div class="form-group" *ngIf="modoEdicion">
+            <label>Contraseña</label>
+            <input type="password" [(ngModel)]="miembroSeleccionado.password" />
+          </div>
         </div>
       </div>
 

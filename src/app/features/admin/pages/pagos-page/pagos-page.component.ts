@@ -2,17 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PagosApiService } from '../../../../core/services/api/pagos-api.service';
-
-interface Pago {
-  id_pago: number;
-  miembro: string;
-  cedula: string;
-  plan: string;
-  metodo_pago: 'efectivo' | 'tarjeta_credito' | 'tarjeta_debito' | 'transferencia';
-  valor_pagado: number;
-  fecha_pago: string;
-  estado_membresia: 'activa' | 'inactiva' | 'vencida' | 'suspendida';
-}
+import { PagoDto } from '../../../../models/dto/pago.dto';
 
 @Component({
   selector: 'app-pagos-page',
@@ -27,11 +17,11 @@ export class PagosPageComponent implements OnInit {
   filtroMetodo: string = '';
   filtroEstado: string = '';
   mostrarModal: boolean = false;
-  pagoSeleccionado: Pago | null = null;
+  pagoSeleccionado: PagoDto | null = null;
   cargando: boolean = false;
   error: string = '';
 
-  pagos: Pago[] = [];
+  pagos: PagoDto[] = [];
 
   constructor(private pagosApi: PagosApiService) {}
 
@@ -63,7 +53,7 @@ export class PagosPageComponent implements OnInit {
     });
   }
 
-  get pagosFiltrados(): Pago[] {
+  get pagosFiltrados(): PagoDto[] {
     return this.pagos.filter(p => {
       const texto = `${p.miembro} ${p.cedula} ${p.plan}`.toLowerCase();
       const coincideBusqueda = !this.busqueda || texto.includes(this.busqueda.toLowerCase());
@@ -73,7 +63,7 @@ export class PagosPageComponent implements OnInit {
     });
   }
 
-  abrirDetalle(pago: Pago) {
+  abrirDetalle(pago: PagoDto) {
     this.pagoSeleccionado = { ...pago };
     this.mostrarModal = true;
   }

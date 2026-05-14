@@ -2,16 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ContenidosApiService } from '../../../../core/services/api/contenidos-api.service';
-
-interface Contenido {
-  id_contenido: number;
-  titulo: string;
-  descripcion: string;
-  tipo_contenido: 'video' | 'articulo' | 'rutina' | 'guia';
-  url_recurso: string;
-  fecha_publicacion: string;
-  deporte: string;
-}
+import { ContenidoDto } from '../../../../models/dto/contenido.dto';
 
 @Component({
   selector: 'app-contenidos-page',
@@ -29,11 +20,11 @@ export class ContenidosPageComponent implements OnInit {
   itemsPorPagina: number = 10;
   mostrarModal: boolean = false;
   modoEdicion: boolean = false;
-  contenidoSeleccionado: Contenido = this.crearContenidoVacio();
+  contenidoSeleccionado: ContenidoDto = this.crearContenidoVacio();
   cargando: boolean = false;
   error: string = '';
 
-  contenidos: Contenido[] = [];
+  contenidos: ContenidoDto[] = [];
 
   constructor(private contenidosApi: ContenidosApiService) {}
 
@@ -51,7 +42,8 @@ export class ContenidosPageComponent implements OnInit {
           titulo: c.titulo,
           descripcion: c.descripcion,
           tipo_contenido: c.tipo_contenido,
-          url_recurso: c.url_del_recurso ?? '',
+          autor: c.autor ?? '',
+          url_del_recurso: c.url_del_recurso ?? '',
           fecha_publicacion: c.fecha_publicacion ?? '',
           deporte: c.deporte?.nombre ?? ''
         }));
@@ -64,19 +56,20 @@ export class ContenidosPageComponent implements OnInit {
     });
   }
 
-  crearContenidoVacio(): Contenido {
+  crearContenidoVacio(): ContenidoDto {
     return {
       id_contenido: 0,
       titulo: '',
       descripcion: '',
       tipo_contenido: 'articulo',
-      url_recurso: '',
+      autor: '',
+      url_del_recurso: '',
       fecha_publicacion: '',
       deporte: ''
     };
   }
 
-  get contenidosFiltrados(): Contenido[] {
+  get contenidosFiltrados(): ContenidoDto[] {
     return this.contenidos.filter(c => {
       const texto = `${c.titulo} ${c.descripcion} ${c.deporte}`.toLowerCase();
       const coincideBusqueda = !this.busqueda || texto.includes(this.busqueda.toLowerCase());
@@ -86,7 +79,7 @@ export class ContenidosPageComponent implements OnInit {
     });
   }
 
-  get contenidosPaginados(): Contenido[] {
+  get contenidosPaginados(): ContenidoDto[] {
     const inicio = (this.paginaActual - 1) * this.itemsPorPagina;
     return this.contenidosFiltrados.slice(inicio, inicio + this.itemsPorPagina);
   }
@@ -107,7 +100,7 @@ export class ContenidosPageComponent implements OnInit {
     this.mostrarModal = true;
   }
 
-  abrirEditar(contenido: Contenido) {
+  abrirEditar(contenido: ContenidoDto) {
     this.modoEdicion = true;
     this.contenidoSeleccionado = { ...contenido };
     this.mostrarModal = true;
@@ -118,7 +111,7 @@ export class ContenidosPageComponent implements OnInit {
       titulo: this.contenidoSeleccionado.titulo,
       descripcion: this.contenidoSeleccionado.descripcion,
       tipo_contenido: this.contenidoSeleccionado.tipo_contenido,
-      url_del_recurso: this.contenidoSeleccionado.url_recurso,
+      url_del_recurso: this.contenidoSeleccionado.url_del_recurso,
       fecha_publicacion: this.contenidoSeleccionado.fecha_publicacion
     };
 

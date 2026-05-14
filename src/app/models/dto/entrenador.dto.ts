@@ -17,6 +17,8 @@ export interface EntrenadorDto extends PersonaDto {
     | 'alto'
     | 'extremo';
 
+  fecha_ingreso_sis: string;
+
   deportes?: string[];
 
 }

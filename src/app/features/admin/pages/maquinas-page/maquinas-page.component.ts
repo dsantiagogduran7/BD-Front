@@ -2,16 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MaquinasApiService } from '../../../../core/services/api/maquinas-api.service';
-
-interface Maquina {
-  codigo_serie: number;
-  nombre_maquina: string;
-  modelo: string;
-  marca: string;
-  tipo_maquina: 'cardio' | 'fuerza' | 'funcional' | 'rehabilitacion' | 'pesas' | 'otra';
-  estado: 'operativa' | 'en_mantenimiento' | 'fuera_de_servicio' | 'en_reparacion';
-  capacidad: number;
-}
+import { MaquinaDto } from '../../../../models/dto/maquina.dto';
 
 @Component({
   selector: 'app-maquinas-page',
@@ -27,11 +18,11 @@ export class MaquinasPageComponent implements OnInit {
   filtroTipo: string = '';
   mostrarModal: boolean = false;
   modoEdicion: boolean = false;
-  maquinaSeleccionada: Maquina | null = null;
+  maquinaSeleccionada: MaquinaDto | null = null;
   cargando: boolean = false;
   error: string = '';
 
-  maquinas: Maquina[] = [];
+  maquinas: MaquinaDto[] = [];
 
   constructor(private maquinasApi: MaquinasApiService) {}
 
@@ -44,7 +35,7 @@ export class MaquinasPageComponent implements OnInit {
     this.error = '';
     this.maquinasApi.listarTodas().subscribe({
       next: (data) => {
-        this.maquinas = data as Maquina[];
+        this.maquinas = data as MaquinaDto[];
         this.cargando = false;
       },
       error: () => {
@@ -54,7 +45,7 @@ export class MaquinasPageComponent implements OnInit {
     });
   }
 
-  get maquinasFiltradas(): Maquina[] {
+  get maquinasFiltradas(): MaquinaDto[] {
     return this.maquinas.filter(m => {
       const texto = `${m.nombre_maquina} ${m.marca} ${m.modelo}`.toLowerCase();
       const coincideBusqueda = !this.busqueda || texto.includes(this.busqueda.toLowerCase());
@@ -64,7 +55,7 @@ export class MaquinasPageComponent implements OnInit {
     });
   }
 
-  abrirDetalle(maquina: Maquina) {
+  abrirDetalle(maquina: MaquinaDto) {
     this.maquinaSeleccionada = { ...maquina };
     this.modoEdicion = false;
     this.mostrarModal = true;

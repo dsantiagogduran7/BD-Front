@@ -69,7 +69,7 @@
 
       <th>Fecha</th>
 
-      <th>Horario</th>
+      <th>Hora inicio</th>
 
       <th>Cupos</th>
 
@@ -118,7 +118,7 @@
 
       <td>{{ c.fecha }}</td>
 
-      <td>{{ c.horario }}</td>
+      <td>{{ c.hora_inicio }}</td>
 
       <td>{{ c.cupos }}</td>
 
@@ -258,11 +258,23 @@
 
           <div class="form-group">
 
-            <label>Horario</label>
+            <label>Hora inicio</label>
 
             <input
               type="text"
-              [(ngModel)]="claseSeleccionada.horario"
+              [(ngModel)]="claseSeleccionada.hora_inicio"
+              [disabled]="!modoEdicion"
+            />
+
+          </div>
+
+          <div class="form-group">
+
+            <label>Hora fin</label>
+
+            <input
+              type="text"
+              [(ngModel)]="claseSeleccionada.hora_fin"
               [disabled]="!modoEdicion"
             />
 
@@ -357,7 +369,7 @@
       <button
         *ngIf="modoEdicion && claseSeleccionada"
         class="btn-secondary"
-        (click)="eliminarClase(claseSeleccionada.id)"
+        (click)="eliminarClase(claseSeleccionada.id_clase)"
       >
         Eliminar
       </button>

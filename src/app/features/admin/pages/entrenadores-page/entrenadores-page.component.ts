@@ -2,22 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { EntrenadoresApiService } from '../../../../core/services/api/entrenadores-api.service';
-
-interface Entrenador {
-  cedula: string;
-  primer_nombre: string;
-  segundo_nombre?: string;
-  primer_apellido: string;
-  segundo_apellido: string;
-  correo: string;
-  telefono: string;
-  fecha_nacimiento: string;
-  tipo_entrenamiento: 'fuerza' | 'aerobico' | 'flexibilidad' | 'equilibrio';
-  tiempo_experiencia: number;
-  nivel_exigencia: 'bajo' | 'moderado' | 'medio' | 'alto' | 'extremo';
-  fecha_ingreso_sis: string;
-  deportes?: string[];
-}
+import { EntrenadorDto } from '../../../../models/dto/entrenador.dto';
 
 @Component({
   selector: 'app-entrenadores',
@@ -32,12 +17,12 @@ export class EntrenadoresPageComponent implements OnInit {
   filtroTipo: string = '';
   filtroExigencia: string = '';
   mostrarModal: boolean = false;
-  entrenadorSeleccionado: Entrenador | null = null;
+  entrenadorSeleccionado: EntrenadorDto | null = null;
   modoEdicion: boolean = false;
   cargando: boolean = false;
   error: string = '';
 
-  entrenadores: Entrenador[] = [];
+  entrenadores: EntrenadorDto[] = [];
 
   constructor(private entrenadoresApi: EntrenadoresApiService) {}
 
@@ -55,7 +40,7 @@ export class EntrenadoresPageComponent implements OnInit {
           deportes: (e.deportes as any[] || []).map((d: any) =>
             typeof d === 'string' ? d : d.nombre
           )
-        })) as Entrenador[];
+        })) as EntrenadorDto[];
         this.cargando = false;
       },
       error: () => {
@@ -65,7 +50,7 @@ export class EntrenadoresPageComponent implements OnInit {
     });
   }
 
-  get entrenadoresFiltrados(): Entrenador[] {
+  get entrenadoresFiltrados(): EntrenadorDto[] {
     return this.entrenadores.filter(e => {
       const nombre = `${e.primer_nombre} ${e.primer_apellido} ${e.segundo_apellido}`.toLowerCase();
       const coincideBusqueda = !this.busqueda || nombre.includes(this.busqueda.toLowerCase()) || e.cedula.includes(this.busqueda);
@@ -75,7 +60,7 @@ export class EntrenadoresPageComponent implements OnInit {
     });
   }
 
-  abrirDetalle(entrenador: Entrenador) {
+  abrirDetalle(entrenador: EntrenadorDto) {
     this.entrenadorSeleccionado = { ...entrenador, deportes: [...(entrenador.deportes || [])] };
     this.modoEdicion = false;
     this.mostrarModal = true;
@@ -84,7 +69,7 @@ export class EntrenadoresPageComponent implements OnInit {
   nuevoEntrenador() {
     this.entrenadorSeleccionado = {
       cedula: '', primer_nombre: '', primer_apellido: '', segundo_apellido: '',
-      correo: '', telefono: '', fecha_nacimiento: '',
+      correo: '', telefono: '', fecha_nacimiento: '', rol: 'entrenador',
       tipo_entrenamiento: 'fuerza',
       tiempo_experiencia: 0,
       nivel_exigencia: 'bajo',
@@ -121,7 +106,7 @@ export class EntrenadoresPageComponent implements OnInit {
     });
   }
 
-  getNombreCompleto(e: Entrenador): string {
+  getNombreCompleto(e: EntrenadorDto): string {
     return `${e.primer_nombre}${e.segundo_nombre ? ' ' + e.segundo_nombre : ''} ${e.primer_apellido} ${e.segundo_apellido}`;
   }
 

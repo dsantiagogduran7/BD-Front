@@ -2,6 +2,8 @@ import { PersonaDto } from './persona.dto';
 
 export interface MiembroDto extends PersonaDto {
 
+  password?: string;
+
   altura: number;
 
   peso_actual: number;

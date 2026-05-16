@@ -1,210 +1,224 @@
 <div class="page-header">
-
   <div class="header-left">
-
     <h1>Reportes</h1>
+    <span class="total-badge">Filtra y exporta cada tabla a PDF</span>
+  </div>
+</div>
 
-    <span class="total-badge">
-      {{ datosFiltrados.length }} registros
-    </span>
+<div *ngIf="cargando" class="empty-row">Cargando datos...</div>
+<div *ngIf="error" class="empty-row" style="color:#c62828">{{ error }}</div>
 
+<ng-container *ngIf="!cargando && !error">
+
+  <!-- ===== PAGOS ===== -->
+  <div class="reporte-section">
+    <div class="reporte-header">
+      <div>
+        <h2 class="reporte-titulo">Pagos</h2>
+        <span class="reporte-count">{{ pagosFiltrados.length }} registros</span>
+      </div>
+      <button class="btn-pdf" (click)="exportarPagos()">&#128196; Exportar PDF</button>
+    </div>
+    <div class="reporte-filtros">
+      <input type="text" class="search-input" placeholder="Buscar por miembro o cédula..." [(ngModel)]="busquedaPagos" />
+      <select class="filtro-select" [(ngModel)]="filtroMetodoPagos">
+        <option value="">Todos los métodos</option>
+        <option value="efectivo">Efectivo</option>
+        <option value="tarjeta_credito">Tarjeta Crédito</option>
+        <option value="tarjeta_debito">Tarjeta Débito</option>
+        <option value="transferencia">Transferencia</option>
+      </select>
+    </div>
+    <div class="table-wrapper">
+      <table class="data-table">
+        <thead><tr><th>#</th><th>Miembro</th><th>Cédula</th><th>Plan</th><th>Método</th><th>Valor</th><th>Fecha</th><th>Estado Memb.</th></tr></thead>
+        <tbody>
+          <tr *ngFor="let p of pagosFiltrados" class="table-row">
+            <td>#{{ p.id_pago }}</td>
+            <td>{{ p.nombre_miembro }}</td>
+            <td class="cedula-cell">{{ p.miembro_cedula }}</td>
+            <td>{{ labelDuracion(p.plan_duracion) }}</td>
+            <td><span class="badge metodo-{{ p.metodo_pago }}">{{ labelMetodo(p.metodo_pago) }}</span></td>
+            <td class="precio-cell">{{ formatearPrecio(p.valor_pagado) }}</td>
+            <td>{{ p.fecha_pago }}</td>
+            <td><span class="badge mem-{{ p.estado_membresia }}">{{ p.estado_membresia }}</span></td>
+          </tr>
+          <tr *ngIf="pagosFiltrados.length === 0"><td colspan="8" class="empty-row">Sin resultados.</td></tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 
-  <button
-    class="btn-primary"
-    (click)="exportarPDF()"
-  >
-    Exportar PDF
-  </button>
-
-</div>
-
-<!-- Filtros -->
-
-<div class="filtros-bar">
-
-  <select
-    class="filtro-select"
-    [(ngModel)]="tipoReporte"
-    (change)="cambiarTipoReporte()"
-  >
-
-    <option value="pagos">
-      Pagos
-    </option>
-
-    <option value="miembros">
-      Miembros
-    </option>
-
-    <option value="entrenadores">
-      Entrenadores
-    </option>
-
-    <option value="maquinas">
-      Máquinas
-    </option>
-
-  </select>
-
-  <div class="search-wrapper">
-
-    <span class="search-icon">
-      &#128269;
-    </span>
-
-    <input
-      type="text"
-      class="search-input"
-      placeholder="Buscar..."
-      [(ngModel)]="busqueda"
-    />
-
+  <!-- ===== MIEMBROS ===== -->
+  <div class="reporte-section">
+    <div class="reporte-header">
+      <div>
+        <h2 class="reporte-titulo">Miembros</h2>
+        <span class="reporte-count">{{ miembrosFiltrados.length }} registros</span>
+      </div>
+      <button class="btn-pdf" (click)="exportarMiembros()">&#128196; Exportar PDF</button>
+    </div>
+    <div class="reporte-filtros">
+      <input type="text" class="search-input" placeholder="Buscar por nombre o cédula..." [(ngModel)]="busquedaMiembros" />
+    </div>
+    <div class="table-wrapper">
+      <table class="data-table">
+        <thead><tr><th>Cédula</th><th>Nombre</th><th>Correo</th><th>Teléfono</th><th>Experiencia</th><th>Membresía</th></tr></thead>
+        <tbody>
+          <tr *ngFor="let m of miembrosFiltrados" class="table-row">
+            <td class="cedula-cell">{{ m.cedula }}</td>
+            <td>{{ m.primer_nombre }} {{ m.primer_apellido }}</td>
+            <td>{{ m.correo }}</td>
+            <td>{{ m.telefono }}</td>
+            <td><span class="badge exp-{{ m.nivel_experiencia }}">{{ m.nivel_experiencia }}</span></td>
+            <td><span class="badge mem-{{ m.membresia_estado }}">{{ m.membresia_estado ?? '—' }}</span></td>
+          </tr>
+          <tr *ngIf="miembrosFiltrados.length === 0"><td colspan="6" class="empty-row">Sin resultados.</td></tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 
-  <select
-    class="filtro-select"
-    [(ngModel)]="filtroEstado"
-  >
+  <!-- ===== ENTRENADORES ===== -->
+  <div class="reporte-section">
+    <div class="reporte-header">
+      <div>
+        <h2 class="reporte-titulo">Entrenadores</h2>
+        <span class="reporte-count">{{ entrenadoresFiltrados.length }} registros</span>
+      </div>
+      <button class="btn-pdf" (click)="exportarEntrenadores()">&#128196; Exportar PDF</button>
+    </div>
+    <div class="reporte-filtros">
+      <input type="text" class="search-input" placeholder="Buscar por nombre o cédula..." [(ngModel)]="busquedaEntrenadores" />
+    </div>
+    <div class="table-wrapper">
+      <table class="data-table">
+        <thead><tr><th>Cédula</th><th>Nombre</th><th>Correo</th><th>Tipo</th><th>Exigencia</th></tr></thead>
+        <tbody>
+          <tr *ngFor="let e of entrenadoresFiltrados" class="table-row">
+            <td class="cedula-cell">{{ e.cedula }}</td>
+            <td>{{ e.primer_nombre }} {{ e.primer_apellido }}</td>
+            <td>{{ e.correo }}</td>
+            <td><span class="badge tipo-badge tipo-{{ e.tipo_entrenamiento }}">{{ e.tipo_entrenamiento }}</span></td>
+            <td><span class="badge exig-{{ e.nivel_exigencia }}">{{ e.nivel_exigencia }}</span></td>
+          </tr>
+          <tr *ngIf="entrenadoresFiltrados.length === 0"><td colspan="5" class="empty-row">Sin resultados.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 
-    <option value="">
-      Todos los estados
-    </option>
+  <!-- ===== CLASES ===== -->
+  <div class="reporte-section">
+    <div class="reporte-header">
+      <div>
+        <h2 class="reporte-titulo">Clases</h2>
+        <span class="reporte-count">{{ clasesFiltradas.length }} registros</span>
+      </div>
+      <button class="btn-pdf" (click)="exportarClases()">&#128196; Exportar PDF</button>
+    </div>
+    <div class="reporte-filtros">
+      <input type="text" class="search-input" placeholder="Buscar por deporte o entrenador..." [(ngModel)]="busquedaClases" />
+      <select class="filtro-select" [(ngModel)]="filtroEstadoClases">
+        <option value="">Todos los estados</option>
+        <option value="programada">Programada</option>
+        <option value="cancelada">Cancelada</option>
+        <option value="finalizada">Finalizada</option>
+      </select>
+    </div>
+    <div class="table-wrapper">
+      <table class="data-table">
+        <thead><tr><th>ID</th><th>Deporte</th><th>Entrenador</th><th>Fecha</th><th>Horario</th><th>Cupos</th><th>Estado</th></tr></thead>
+        <tbody>
+          <tr *ngFor="let c of clasesFiltradas" class="table-row">
+            <td class="cedula-cell">#{{ c.id_clase }}</td>
+            <td>{{ c.deporte?.nombre ?? '—' }}</td>
+            <td>{{ c.nombre_entrenador }}</td>
+            <td>{{ c.fecha }}</td>
+            <td>
+              <span *ngIf="c.horario">{{ c.horario.dia_semana | titlecase }} {{ c.horario.hora_inicio }}–{{ c.horario.hora_fin }}</span>
+              <span *ngIf="!c.horario">—</span>
+            </td>
+            <td>{{ c.cupos }}</td>
+            <td><span class="badge exig-{{ c.estado }}">{{ c.estado }}</span></td>
+          </tr>
+          <tr *ngIf="clasesFiltradas.length === 0"><td colspan="7" class="empty-row">Sin resultados.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 
-    <option value="activa">
-      Activa
-    </option>
+  <!-- ===== MÁQUINAS ===== -->
+  <div class="reporte-section">
+    <div class="reporte-header">
+      <div>
+        <h2 class="reporte-titulo">Máquinas</h2>
+        <span class="reporte-count">{{ maquinasFiltradas.length }} registros</span>
+      </div>
+      <button class="btn-pdf" (click)="exportarMaquinas()">&#128196; Exportar PDF</button>
+    </div>
+    <div class="reporte-filtros">
+      <input type="text" class="search-input" placeholder="Buscar por nombre o marca..." [(ngModel)]="busquedaMaquinas" />
+      <select class="filtro-select" [(ngModel)]="filtroEstadoMaquinas">
+        <option value="">Todos los estados</option>
+        <option value="operativa">Operativa</option>
+        <option value="en_mantenimiento">En mantenimiento</option>
+        <option value="en_reparacion">En reparación</option>
+        <option value="fuera_de_servicio">Fuera de servicio</option>
+      </select>
+    </div>
+    <div class="table-wrapper">
+      <table class="data-table">
+        <thead><tr><th>Serie</th><th>Nombre</th><th>Tipo</th><th>Marca</th><th>Capacidad</th><th>Estado</th></tr></thead>
+        <tbody>
+          <tr *ngFor="let m of maquinasFiltradas" class="table-row">
+            <td class="cedula-cell">#{{ m.codigo_serie }}</td>
+            <td>{{ m.nombre_maquina }}</td>
+            <td><span class="badge tipo-badge tipo-{{ m.tipo_maquina }}">{{ m.tipo_maquina }}</span></td>
+            <td>{{ m.marca }}</td>
+            <td>{{ m.capacidad }} kg</td>
+            <td><span class="badge estado-{{ m.estado }}">{{ m.estado }}</span></td>
+          </tr>
+          <tr *ngIf="maquinasFiltradas.length === 0"><td colspan="6" class="empty-row">Sin resultados.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 
-    <option value="vencida">
-      Vencida
-    </option>
+  <!-- ===== OPERADORES ===== -->
+  <div class="reporte-section">
+    <div class="reporte-header">
+      <div>
+        <h2 class="reporte-titulo">Operadores</h2>
+        <span class="reporte-count">{{ operadoresFiltrados.length }} registros</span>
+      </div>
+      <button class="btn-pdf" (click)="exportarOperadores()">&#128196; Exportar PDF</button>
+    </div>
+    <div class="reporte-filtros">
+      <input type="text" class="search-input" placeholder="Buscar por nombre o cédula..." [(ngModel)]="busquedaOperadores" />
+      <select class="filtro-select" [(ngModel)]="filtroTipoOperadores">
+        <option value="">Todos los tipos</option>
+        <option value="preventivo">Preventivo</option>
+        <option value="correctivo">Correctivo</option>
+        <option value="locativo">Locativo</option>
+      </select>
+    </div>
+    <div class="table-wrapper">
+      <table class="data-table">
+        <thead><tr><th>Cédula</th><th>Nombre</th><th>Correo</th><th>Tipo</th><th>Especialidad</th><th>Nivel Técnico</th></tr></thead>
+        <tbody>
+          <tr *ngFor="let o of operadoresFiltrados" class="table-row">
+            <td class="cedula-cell">{{ o.cedula }}</td>
+            <td>{{ o.primer_nombre }} {{ o.primer_apellido }}</td>
+            <td>{{ o.correo }}</td>
+            <td><span class="badge tipo-op-{{ o.tipo_operador }}">{{ o.tipo_operador }}</span></td>
+            <td><span class="badge esp-{{ o.especialidad }}">{{ o.especialidad }}</span></td>
+            <td><span class="badge nivel-{{ o.nivel_tecnico }}">{{ o.nivel_tecnico }}</span></td>
+          </tr>
+          <tr *ngIf="operadoresFiltrados.length === 0"><td colspan="6" class="empty-row">Sin resultados.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 
-    <option value="mantenimiento">
-      Mantenimiento
-    </option>
-
-  </select>
-
-</div>
-
-<!-- Tabla -->
-
-<div class="table-wrapper">
-
-  <table class="data-table">
-
-    <thead>
-
-    <tr>
-
-      <th>ID</th>
-      <th>Nombre</th>
-      <th>Detalle</th>
-      <th>Estado</th>
-      <th>Fecha</th>
-      <th>Valor</th>
-
-    </tr>
-
-    </thead>
-
-    <tbody>
-
-    <tr
-      *ngFor="let d of datosPaginados"
-      class="table-row"
-    >
-
-      <td>#{{ d.id }}</td>
-
-      <td>
-
-        <div class="member-cell">
-
-          <div class="avatar">
-            {{ d.nombre[0] }}
-          </div>
-
-          <div class="member-info">
-
-              <span class="member-name">
-                {{ d.nombre }}
-              </span>
-
-          </div>
-
-        </div>
-
-      </td>
-
-      <td>
-        {{ d.detalle }}
-      </td>
-
-      <td>
-
-          <span
-            class="badge estado-{{ d.estado }}"
-          >
-            {{ d.estado }}
-          </span>
-
-      </td>
-
-      <td>
-        {{ d.fecha }}
-      </td>
-
-      <td class="precio-cell">
-
-        {{ formatearPrecio(d.valor) }}
-
-      </td>
-
-    </tr>
-
-    <tr *ngIf="datosPaginados.length === 0">
-
-      <td
-        colspan="6"
-        class="empty-row"
-      >
-        No se encontraron registros.
-      </td>
-
-    </tr>
-
-    </tbody>
-
-  </table>
-
-</div>
-
-<!-- Paginación -->
-
-<div class="pagination">
-
-  <button
-    class="btn-page"
-    (click)="cambiarPagina(paginaActual - 1)"
-    [disabled]="paginaActual === 1"
-  >
-    Anterior
-  </button>
-
-  <span class="page-info">
-
-    Página {{ paginaActual }}
-    de {{ totalPaginas }}
-
-  </span>
-
-  <button
-    class="btn-page"
-    (click)="cambiarPagina(paginaActual + 1)"
-    [disabled]="paginaActual === totalPaginas"
-  >
-    Siguiente
-  </button>
-
-</div>
+</ng-container>

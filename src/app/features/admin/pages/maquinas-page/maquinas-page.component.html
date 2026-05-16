@@ -1,404 +1,260 @@
 <div class="page-header">
-
   <div class="header-left">
-
     <h1>Máquinas</h1>
-
-    <span class="total-badge">
-      {{ maquinasFiltradas.length }} máquinas
-    </span>
-
+    <span class="total-badge">{{ maquinasFiltradas.length }} registros</span>
   </div>
-
   <button class="btn-primary" (click)="nuevaMaquina()">
-
-    <span class="icon">+</span>
-
-    Nueva Máquina
-
+    <span class="icon">+</span> Nueva Máquina
   </button>
-
 </div>
 
-<!-- FILTROS -->
-
+<!-- Filtros -->
 <div class="filtros-bar">
-
   <div class="search-wrapper">
-
     <span class="search-icon">&#128269;</span>
-
     <input
       type="text"
-      placeholder="Buscar máquina..."
+      placeholder="Buscar por nombre, modelo o marca..."
       [(ngModel)]="busqueda"
       class="search-input"
     />
-
   </div>
-
-  <select
-    [(ngModel)]="filtroTipo"
-    class="filtro-select"
-  >
-
+  <select [(ngModel)]="filtroTipo" class="filtro-select">
     <option value="">Todos los tipos</option>
-
     <option value="cardio">Cardio</option>
-
     <option value="fuerza">Fuerza</option>
-
     <option value="funcional">Funcional</option>
-
-    <option value="rehabilitacion">
-      Rehabilitación
-    </option>
-
+    <option value="rehabilitacion">Rehabilitación</option>
     <option value="pesas">Pesas</option>
-
     <option value="otra">Otra</option>
-
   </select>
-
-  <select
-    [(ngModel)]="filtroEstado"
-    class="filtro-select"
-  >
-
+  <select [(ngModel)]="filtroEstado" class="filtro-select">
     <option value="">Todos los estados</option>
-
     <option value="operativa">Operativa</option>
-
-    <option value="en_mantenimiento">
-      En mantenimiento
-    </option>
-
-    <option value="en_reparacion">
-      En reparación
-    </option>
-
-    <option value="fuera_de_servicio">
-      Fuera de servicio
-    </option>
-
+    <option value="en_mantenimiento">En mantenimiento</option>
+    <option value="en_reparacion">En reparación</option>
+    <option value="fuera_de_servicio">Fuera de servicio</option>
   </select>
-
 </div>
 
-<!-- TABLA -->
+<!-- Estado de carga / error -->
+<div *ngIf="cargando" class="empty-row">Cargando máquinas...</div>
+<div *ngIf="error" class="empty-row" style="color:#c62828">{{ error }}</div>
 
-<div class="table-wrapper">
-
+<!-- Tabla -->
+<div class="table-wrapper" *ngIf="!cargando && !error">
   <table class="data-table">
-
     <thead>
-
-    <tr>
-
-      <th>Máquina</th>
-
-      <th>Modelo</th>
-
-      <th>Marca</th>
-
-      <th>Tipo</th>
-
-      <th>Capacidad</th>
-
-      <th>Estado</th>
-
-      <th>Acciones</th>
-
-    </tr>
-
+      <tr>
+        <th>Máquina</th>
+        <th>Modelo / Marca</th>
+        <th>Tipo</th>
+        <th>Capacidad</th>
+        <th>Estado</th>
+        <th>Acciones</th>
+      </tr>
     </thead>
-
     <tbody>
+      <tr *ngFor="let m of maquinasPaginadas" class="table-row">
 
-    <tr
-      *ngFor="let m of maquinasFiltradas"
-      class="table-row"
-    >
-
-      <td>
-
-        <div class="member-cell">
-
-          <div class="avatar tipo-fuerza">
-            {{ m.nombre_maquina[0] }}
+        <td>
+          <div class="member-cell">
+            <div class="avatar tipo-{{ m.tipo_maquina }}">
+              {{ m.nombre_maquina[0] }}
+            </div>
+            <div class="member-info">
+              <span class="member-name">{{ m.nombre_maquina }}</span>
+              <span class="member-sub">Serie #{{ m.codigo_serie }}</span>
+            </div>
           </div>
+        </td>
 
-          <div class="member-info">
-
-            <span class="member-name">
-              {{ m.nombre_maquina }}
-            </span>
-
-            <span class="member-sub">
-              Serie {{ m.codigo_serie }}
-            </span>
-
+        <td>
+          <div class="contact-cell">
+            <span>{{ m.modelo }}</span>
+            <span class="phone">{{ m.marca }}</span>
           </div>
+        </td>
 
-        </div>
+        <td>
+          <span class="badge tipo-badge tipo-{{ m.tipo_maquina }}">{{ labelTipo(m.tipo_maquina) }}</span>
+        </td>
 
-      </td>
+        <td>{{ m.capacidad }} kg</td>
 
-      <td>{{ m.modelo }}</td>
+        <td>
+          <span class="badge estado-{{ m.estado }}">{{ labelEstado(m.estado) }}</span>
+        </td>
 
-      <td>{{ m.marca }}</td>
+        <td>
+          <button class="btn-icon" (click)="abrirDetalle(m)" title="Ver detalle">&#128065;</button>
+        </td>
 
-      <td>
-
-        <span class="badge tipo-badge tipo-{{ m.tipo_maquina }}">
-          {{ m.tipo_maquina }}
-        </span>
-
-      </td>
-
-      <td>{{ m.capacidad }} kg</td>
-
-      <td>
-
-        <span class="badge estado-{{ m.estado }}">
-          {{ m.estado }}
-        </span>
-
-      </td>
-
-      <td>
-
-        <button
-          class="btn-icon"
-          (click)="abrirDetalle(m)"
-        >
-          &#128065;
-        </button>
-
-      </td>
-
-    </tr>
-
-    <tr *ngIf="maquinasFiltradas.length === 0">
-
-      <td colspan="7" class="empty-row">
-
-        No se encontraron máquinas.
-
-      </td>
-
-    </tr>
-
+      </tr>
+      <tr *ngIf="maquinasFiltradas.length === 0">
+        <td colspan="6" class="empty-row">No se encontraron máquinas con los filtros aplicados.</td>
+      </tr>
     </tbody>
-
   </table>
-
+  <app-paginacion [totalPaginas]="totalPaginas" [paginaActual]="paginaActual" (cambiarPagina)="cambiarPagina($event)"></app-paginacion>
 </div>
 
-<!-- MODAL -->
-
-<div
-  class="modal-overlay"
-  *ngIf="mostrarModal"
-  (click)="cerrarModal()"
->
-
-  <div
-    class="modal"
-    (click)="$event.stopPropagation()"
-  >
+<!-- Modal -->
+<div class="modal-overlay" *ngIf="mostrarModal" (click)="cerrarModal()">
+  <div class="modal modal-lg" (click)="$event.stopPropagation()">
 
     <div class="modal-header">
-
       <h2>
-
-        {{
-          modoEdicion
-            ? 'Editar / Crear Máquina'
-            : 'Detalle de Máquina'
-        }}
-
+        {{ modoEdicion ? (esNueva ? 'Nueva Máquina' : 'Editar Máquina') : 'Detalle de Máquina' }}
       </h2>
-
-      <button
-        class="btn-close"
-        (click)="cerrarModal()"
-      >
-        ✕
-      </button>
-
+      <button class="btn-close" (click)="cerrarModal()">&#x2715;</button>
     </div>
 
-    <div
-      class="modal-body"
-      *ngIf="maquinaSeleccionada"
-    >
+    <div class="modal-body" *ngIf="maquinaSeleccionada">
 
+      <!-- Información general -->
       <div class="form-section">
-
-        <h3 class="section-title">
-          Información General
-        </h3>
-
+        <h3 class="section-title">Información General</h3>
         <div class="form-grid">
 
-          <div class="form-group">
-
+          <div class="form-group" *ngIf="!esNueva">
             <label>Código de Serie</label>
-
-            <input
-              type="number"
-              [(ngModel)]="maquinaSeleccionada.codigo_serie"
-              [disabled]="!modoEdicion"
-            />
-
+            <input type="number" [(ngModel)]="maquinaSeleccionada.codigo_serie" [disabled]="true" />
           </div>
 
           <div class="form-group">
-
-            <label>Nombre</label>
-
-            <input
-              type="text"
-              [(ngModel)]="maquinaSeleccionada.nombre_maquina"
-              [disabled]="!modoEdicion"
-            />
-
+            <label>Nombre <span *ngIf="modoEdicion" class="req">*</span></label>
+            <input type="text" [(ngModel)]="maquinaSeleccionada.nombre_maquina"
+              [disabled]="!modoEdicion" maxlength="50" />
           </div>
 
           <div class="form-group">
-
-            <label>Modelo</label>
-
-            <input
-              type="text"
-              [(ngModel)]="maquinaSeleccionada.modelo"
-              [disabled]="!modoEdicion"
-            />
-
+            <label>Modelo <span *ngIf="modoEdicion" class="req">*</span></label>
+            <input type="text" [(ngModel)]="maquinaSeleccionada.modelo"
+              [disabled]="!modoEdicion" maxlength="50" />
           </div>
 
           <div class="form-group">
-
-            <label>Marca</label>
-
-            <input
-              type="text"
-              [(ngModel)]="maquinaSeleccionada.marca"
-              [disabled]="!modoEdicion"
-            />
-
+            <label>Marca <span *ngIf="modoEdicion" class="req">*</span></label>
+            <input type="text" [(ngModel)]="maquinaSeleccionada.marca"
+              [disabled]="!modoEdicion" maxlength="50" />
           </div>
 
           <div class="form-group">
-
-            <label>Tipo</label>
-
-            <select
-              [(ngModel)]="maquinaSeleccionada.tipo_maquina"
-              [disabled]="!modoEdicion"
-            >
-
+            <label>Tipo <span *ngIf="modoEdicion" class="req">*</span></label>
+            <select [(ngModel)]="maquinaSeleccionada.tipo_maquina" [disabled]="!modoEdicion">
               <option value="cardio">Cardio</option>
-
               <option value="fuerza">Fuerza</option>
-
               <option value="funcional">Funcional</option>
-
-              <option value="rehabilitacion">
-                Rehabilitación
-              </option>
-
+              <option value="rehabilitacion">Rehabilitación</option>
               <option value="pesas">Pesas</option>
-
               <option value="otra">Otra</option>
-
             </select>
-
           </div>
 
           <div class="form-group">
-
-            <label>Estado</label>
-
-            <select
-              [(ngModel)]="maquinaSeleccionada.estado"
-              [disabled]="!modoEdicion"
-            >
-
-              <option value="operativa">
-                Operativa
-              </option>
-
-              <option value="en_mantenimiento">
-                En mantenimiento
-              </option>
-
-              <option value="en_reparacion">
-                En reparación
-              </option>
-
-              <option value="fuera_de_servicio">
-                Fuera de servicio
-              </option>
-
+            <label>Estado <span *ngIf="modoEdicion" class="req">*</span></label>
+            <select [(ngModel)]="maquinaSeleccionada.estado" [disabled]="!modoEdicion">
+              <option value="operativa">Operativa</option>
+              <option value="en_mantenimiento">En mantenimiento</option>
+              <option value="en_reparacion">En reparación</option>
+              <option value="fuera_de_servicio">Fuera de servicio</option>
             </select>
-
           </div>
 
           <div class="form-group">
-
-            <label>Capacidad (kg)</label>
-
-            <input
-              type="number"
-              [(ngModel)]="maquinaSeleccionada.capacidad"
-              [disabled]="!modoEdicion"
-            />
-
+            <label>Capacidad (kg) <span *ngIf="modoEdicion" class="req">*</span></label>
+            <input type="number" [(ngModel)]="maquinaSeleccionada.capacidad"
+              [disabled]="!modoEdicion" min="0" step="0.01" />
           </div>
 
         </div>
+      </div>
 
+      <!-- Mantenimientos / Operadores asignados — solo en modo detalle -->
+      <div class="form-section" *ngIf="!modoEdicion">
+        <div class="mant-section-header">
+          <h3 class="section-title">Operadores Asignados / Mantenimientos</h3>
+          <button class="btn-primary btn-sm" (click)="abrirFormMant()" *ngIf="!mostrarFormMant">
+            + Asignar Operador
+          </button>
+        </div>
+
+        <!-- Formulario nuevo mantenimiento -->
+        <div class="mant-form" *ngIf="mostrarFormMant">
+          <h4 class="mant-form-title">Nuevo Registro de Mantenimiento</h4>
+          <div class="form-grid">
+
+            <div class="form-group">
+              <label>Operador <span class="req">*</span></label>
+              <select [(ngModel)]="formMant.operador_cedula">
+                <option value="">-- Selecciona un operador --</option>
+                <option *ngFor="let op of operadores" [value]="op.cedula">
+                  {{ getNombreCompleto(op) }} ({{ op.cedula }})
+                </option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Tipo de Mantenimiento <span class="req">*</span></label>
+              <select [(ngModel)]="formMant.tipo_mant">
+                <option value="preventivo">Preventivo</option>
+                <option value="correctivo">Correctivo</option>
+                <option value="locativo">Locativo</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Fecha <span class="req">*</span></label>
+              <input type="date" [(ngModel)]="formMant.fecha_mantenimiento" />
+            </div>
+
+            <div class="form-group form-group-full">
+              <label>Descripción <span class="req">*</span></label>
+              <textarea [(ngModel)]="formMant.descripcion_mant" rows="2" maxlength="255"
+                placeholder="Describe el trabajo realizado..."></textarea>
+            </div>
+
+          </div>
+          <div class="mant-form-actions">
+            <button class="btn-secondary btn-sm" (click)="cancelarFormMant()">Cancelar</button>
+            <button class="btn-primary btn-sm" (click)="registrarMant()">Registrar</button>
+          </div>
+        </div>
+
+        <!-- Lista de mantenimientos -->
+        <div class="mant-list">
+          <div *ngFor="let mant of mantenimientos" class="mant-item">
+            <div class="mant-info">
+              <div class="mant-operador">
+                <span class="mant-nombre">{{ mant.nombre_operador }}</span>
+                <span class="mant-cedula">{{ mant.operador_cedula }}</span>
+              </div>
+              <div class="mant-detalles">
+                <span class="badge mant-tipo-{{ mant.tipo_mant }}">{{ labelTipoMant(mant.tipo_mant) }}</span>
+                <span class="mant-fecha">{{ mant.fecha_mantenimiento }}</span>
+                <span class="mant-desc">{{ mant.descripcion_mant }}</span>
+              </div>
+            </div>
+            <button class="btn-icon btn-danger-icon" (click)="eliminarMant(mant.operador_cedula)"
+              title="Eliminar registro">&#128465;</button>
+          </div>
+          <div *ngIf="mantenimientos.length === 0 && !mostrarFormMant" class="empty-mant">
+            Sin mantenimientos registrados para esta máquina.
+          </div>
+        </div>
       </div>
 
     </div>
 
+    <div class="error-validacion" *ngIf="errorValidacion">{{ errorValidacion }}</div>
+
     <div class="modal-footer">
-
-      <button
-        class="btn-secondary"
-        (click)="cerrarModal()"
-      >
-        Cancelar
-      </button>
-
-      <button
-        *ngIf="!modoEdicion"
-        class="btn-primary"
-        (click)="modoEdicion = true"
-      >
-        Editar
-      </button>
-
-      <button
-        *ngIf="modoEdicion"
-        class="btn-primary"
-        (click)="guardar()"
-      >
-        Guardar
-      </button>
-
-      <button
-        *ngIf="modoEdicion && maquinaSeleccionada"
-        class="btn-secondary"
-        (click)="eliminarMaquina(maquinaSeleccionada.codigo_serie)"
-      >
-        Eliminar
-      </button>
-
+      <button class="btn-secondary" (click)="cerrarModal()">Cancelar</button>
+      <button *ngIf="!modoEdicion" class="btn-danger" (click)="eliminarMaquina()">Eliminar</button>
+      <button *ngIf="!modoEdicion" class="btn-primary" (click)="activarEdicion()">Editar</button>
+      <button *ngIf="modoEdicion" class="btn-primary" (click)="guardar()">Guardar</button>
     </div>
 
   </div>
-
 </div>

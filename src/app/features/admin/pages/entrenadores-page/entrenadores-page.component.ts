@@ -4,13 +4,14 @@ import { FormsModule } from '@angular/forms';
 import { EntrenadoresApiService } from '../../../../core/services/api/entrenadores-api.service';
 import { DeportesApiService } from '../../../../core/services/api/deportes-api.service';
 import { EntrenadorDto } from '../../../../models/dto/entrenador.dto';
+import { PaginacionComponent } from '../../../../shared/components/paginacion/paginacion.component';
 
 type DeporteItem = { id_deporte: number; nombre: string };
 
 @Component({
   selector: 'app-entrenadores',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, PaginacionComponent],
   templateUrl: './entrenadores-page.component.html',
   styleUrl: './entrenadores-page.component.css'
 })
@@ -29,6 +30,8 @@ export class EntrenadoresPageComponent implements OnInit {
 
   entrenadores: EntrenadorDto[] = [];
   deportesDisponibles: DeporteItem[] = [];
+  paginaActual = 1;
+  readonly itemsPorPagina = 10;
 
   constructor(
     private entrenadoresApi: EntrenadoresApiService,
@@ -38,7 +41,7 @@ export class EntrenadoresPageComponent implements OnInit {
   ngOnInit(): void {
     this.cargarEntrenadores();
     this.deportesApi.listarTodos().subscribe({
-      next: (data) => { this.deportesDisponibles = data; }
+      next: (data) => { this.deportesDisponibles = data.map(d => ({ id_deporte: d.id_deporte, nombre: d.nombre })); }
     });
   }
 
@@ -62,6 +65,11 @@ export class EntrenadoresPageComponent implements OnInit {
       }
     });
   }
+
+  get totalPaginas(): number { return Math.max(1, Math.ceil(this.entrenadoresFiltrados.length / this.itemsPorPagina)); }
+  get entrenadoresPaginados(): EntrenadorDto[] { const i = (this.paginaActual - 1) * this.itemsPorPagina; return this.entrenadoresFiltrados.slice(i, i + this.itemsPorPagina); }
+  cambiarPagina(n: number): void { this.paginaActual = n; }
+  resetPagina(): void { this.paginaActual = 1; }
 
   get entrenadoresFiltrados(): EntrenadorDto[] {
     return this.entrenadores.filter(e => {
@@ -120,19 +128,41 @@ export class EntrenadoresPageComponent implements OnInit {
     }
   }
 
+  get hoy(): string { return new Date().toISOString().split('T')[0]; }
+  get maxFechaNacimiento(): string {
+    const d = new Date(); d.setFullYear(d.getFullYear() - 18); return d.toISOString().split('T')[0];
+  }
+
+  private calcularEdad(fecha: string): number {
+    const hoy = new Date(), nac = new Date(fecha);
+    let edad = hoy.getFullYear() - nac.getFullYear();
+    const mes = hoy.getMonth() - nac.getMonth();
+    if (mes < 0 || (mes === 0 && hoy.getDate() < nac.getDate())) edad--;
+    return edad;
+  }
+
   private validar(): string {
     const e = this.entrenadorSeleccionado!;
     if (!e.cedula?.trim()) return 'La cédula es obligatoria.';
+    if (e.cedula.trim().length > 15) return 'La cédula no puede tener más de 15 caracteres.';
+    if (!/^[a-zA-Z0-9]+$/.test(e.cedula.trim())) return 'La cédula solo puede contener letras y números.';
     if (!e.primer_nombre?.trim()) return 'El primer nombre es obligatorio.';
     if (!e.primer_apellido?.trim()) return 'El primer apellido es obligatorio.';
     if (!e.segundo_apellido?.trim()) return 'El segundo apellido es obligatorio.';
     if (!e.correo?.trim()) return 'El correo es obligatorio.';
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e.correo)) return 'El correo no tiene un formato válido.';
     if (!e.telefono?.trim()) return 'El teléfono es obligatorio.';
+    if (!/^\+?[0-9\s\-]{7,20}$/.test(e.telefono.trim())) return 'El teléfono solo puede contener dígitos, espacios, + o - (mínimo 7 dígitos).';
     if (!e.fecha_nacimiento) return 'La fecha de nacimiento es obligatoria.';
+    if (e.fecha_nacimiento > this.hoy) return 'La fecha de nacimiento no puede ser futura.';
+    if (this.calcularEdad(e.fecha_nacimiento) < 18) return 'El entrenador debe tener al menos 18 años.';
     if (!e.fecha_ingreso_sis) return 'La fecha de ingreso es obligatoria.';
-    if (!e.tiempo_experiencia || e.tiempo_experiencia <= 0) return 'La experiencia debe ser mayor a 0.';
+    if (e.fecha_ingreso_sis > this.hoy) return 'La fecha de ingreso no puede ser futura.';
+    if (e.fecha_ingreso_sis < e.fecha_nacimiento) return 'La fecha de ingreso no puede ser anterior al nacimiento.';
+    if (!e.tiempo_experiencia || e.tiempo_experiencia <= 0) return 'La experiencia debe ser mayor a 0 meses.';
+    if (e.tiempo_experiencia > 600) return 'La experiencia no puede superar 600 meses (50 años).';
     if (this.esNuevo && !e.password?.trim()) return 'La contraseña es obligatoria.';
+    if (this.esNuevo && e.password!.trim().length < 6) return 'La contraseña debe tener al menos 6 caracteres.';
     return '';
   }
 

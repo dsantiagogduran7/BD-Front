@@ -16,3 +16,34 @@
   background: #e8f5e9;
   color: #1b5e20;
 }
+
+.btn-danger {
+  background: #c62828;
+  color: #fff;
+  border: none;
+  padding: 8px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.btn-danger:hover {
+  background: #b71c1c;
+}
+
+.required {
+  color: #c62828;
+  margin-left: 2px;
+}
+
+select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+small {
+  color: #e65100;
+  font-size: 0.78rem;
+  margin-top: 4px;
+  display: block;
+}

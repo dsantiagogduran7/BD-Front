@@ -1,0 +1,41 @@
+@import '../entrenadores-page/entrenadores-page.component.css';
+
+/* Avatares por tipo de operador */
+.avatar-op.tipo-preventivo  { background: #1565c0; }
+.avatar-op.tipo-correctivo  { background: #b71c1c; }
+.avatar-op.tipo-locativo    { background: #4a148c; }
+
+/* Badges — tipo operador */
+.tipo-op-preventivo  { background: #e3f2fd; color: #1565c0; }
+.tipo-op-correctivo  { background: #ffebee; color: #b71c1c; }
+.tipo-op-locativo    { background: #f3e5f5; color: #4a148c; }
+
+/* Badges — especialidad */
+.esp-mecanico              { background: #fff8e1; color: #f57f17; }
+.esp-electrico             { background: #e8f5e9; color: #1b5e20; }
+.esp-inspeccion            { background: #e3f2fd; color: #0277bd; }
+.esp-gestion_instalaciones { background: #fce4ec; color: #880e4f; }
+
+/* Badges — nivel técnico */
+.nivel-basico      { background: #f5f5f5; color: #616161; }
+.nivel-intermedio  { background: #e8f5e9; color: #2e7d32; }
+.nivel-avanzado    { background: #e3f2fd; color: #1565c0; }
+.nivel-experto     { background: #fce4ec; color: #880e4f; }
+
+/* Resumen de badges en detalle */
+.resumen-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.resumen-badges .badge {
+  font-size: 13px;
+  padding: 5px 14px;
+  border-radius: 20px;
+}
+
+/* Campo requerido */
+.req {
+  color: #c62828;
+  margin-left: 2px;
+}

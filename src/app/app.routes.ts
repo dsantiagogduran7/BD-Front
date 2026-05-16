@@ -18,6 +18,8 @@ import { MaquinasPageComponent } from './features/admin/pages/maquinas-page/maqu
 import { PagosPageComponent } from './features/admin/pages/pagos-page/pagos-page.component';
 import { ReportesPageComponent } from './features/admin/pages/reportes-page/reportes-page.component';
 import { ContenidosPageComponent } from './features/admin/pages/contenidos-page/contenidos-page.component';
+import { OperadoresPageComponent } from './features/admin/pages/operadores-page/operadores-page.component';
+import { DeportesPageComponent } from './features/admin/pages/deportes-page/deportes-page.component';
 
 // TRAINER PAGES
 import { MisAlumnosPageComponent } from './features/trainer/pages/mis-alumnos-page/mis-alumnos-page.component';
@@ -56,6 +58,8 @@ export const routes: Routes = [
       { path: 'pagos',        component: PagosPageComponent },
       { path: 'reportes',     component: ReportesPageComponent },
       { path: 'contenidos',   component: ContenidosPageComponent },
+      { path: 'operadores',   component: OperadoresPageComponent },
+      { path: 'deportes',     component: DeportesPageComponent },
     ]
   },
 

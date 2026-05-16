@@ -1,23 +1,184 @@
 @import '../miembros-page/miembros-page.component.css';
 
-/* Estados */
+/* ---- Tipo de máquina: avatares ---- */
+.avatar.tipo-cardio        { background: #0277bd; }
+.avatar.tipo-fuerza        { background: #1b5e20; }
+.avatar.tipo-funcional     { background: #e65100; }
+.avatar.tipo-rehabilitacion{ background: #4a148c; }
+.avatar.tipo-pesas         { background: #880e4f; }
+.avatar.tipo-otra          { background: #546e7a; }
 
-.estado-operativa {
-  background: #e8f5e9;
-  color: #1b5e20;
+/* ---- Tipo de máquina: badges ---- */
+.tipo-badge.tipo-cardio        { background: #e3f2fd; color: #0277bd; }
+.tipo-badge.tipo-fuerza        { background: #e8f5e9; color: #1b5e20; }
+.tipo-badge.tipo-funcional     { background: #fff3e0; color: #e65100; }
+.tipo-badge.tipo-rehabilitacion{ background: #f3e5f5; color: #4a148c; }
+.tipo-badge.tipo-pesas         { background: #fce4ec; color: #880e4f; }
+.tipo-badge.tipo-otra          { background: #eceff1; color: #546e7a; }
+
+/* ---- Estado: badges ---- */
+.estado-operativa       { background: #e8f5e9; color: #1b5e20; }
+.estado-en_mantenimiento{ background: #fff8e1; color: #f57f17; }
+.estado-en_reparacion   { background: #fff3e0; color: #ef6c00; }
+.estado-fuera_de_servicio{ background: #ffebee; color: #c62828; }
+
+/* ---- Modal grande ---- */
+.modal-lg {
+  max-width: 720px;
+  width: 95%;
 }
 
-.estado-en_mantenimiento {
-  background: #fff8e1;
-  color: #f57f17;
+/* ---- Sección mantenimientos ---- */
+.mant-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
 }
 
-.estado-en_reparacion {
-  background: #fff3e0;
-  color: #ef6c00;
+.mant-section-header .section-title {
+  margin-bottom: 0;
 }
 
-.estado-fuera_de_servicio {
-  background: #ffebee;
+.btn-sm {
+  padding: 6px 14px;
+  font-size: 13px;
+}
+
+/* ---- Formulario nuevo mantenimiento ---- */
+.mant-form {
+  background: #f9f9f9;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.mant-form-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #444;
+  margin: 0 0 12px;
+}
+
+.form-group-full {
+  grid-column: 1 / -1;
+}
+
+.form-group-full textarea {
+  width: 100%;
+  resize: vertical;
+  padding: 8px 10px;
+  border: 1px solid #d0d0d0;
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: inherit;
+}
+
+.mant-form-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 12px;
+}
+
+/* ---- Lista de mantenimientos ---- */
+.mant-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.mant-item {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 12px 14px;
+}
+
+.mant-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.mant-operador {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.mant-nombre {
+  font-weight: 600;
+  font-size: 14px;
+  color: #222;
+}
+
+.mant-cedula {
+  font-size: 12px;
+  color: #888;
+}
+
+.mant-detalles {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 13px;
+  color: #555;
+}
+
+.mant-fecha {
+  color: #666;
+}
+
+.mant-desc {
+  color: #444;
+}
+
+/* ---- Tipo mantenimiento: badges ---- */
+.mant-tipo-preventivo { background: #e3f2fd; color: #1565c0; }
+.mant-tipo-correctivo { background: #ffebee; color: #b71c1c; }
+.mant-tipo-locativo   { background: #f3e5f5; color: #4a148c; }
+
+/* ---- Botón icono peligro ---- */
+.btn-danger-icon {
   color: #c62828;
+  font-size: 16px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+
+.btn-danger-icon:hover {
+  background: #ffebee;
+}
+
+.empty-mant {
+  text-align: center;
+  color: #999;
+  font-size: 14px;
+  padding: 20px 0;
+}
+
+/* ---- Campo requerido ---- */
+.req {
+  color: #c62828;
+  margin-left: 2px;
+}
+
+/* ---- Error de validación ---- */
+.error-validacion {
+  color: #c62828;
+  font-size: 13px;
+  padding: 8px 24px 0;
 }

@@ -1,0 +1,244 @@
+<div class="page-header">
+  <div class="header-left">
+    <h1>Operadores</h1>
+    <span class="total-badge">{{ operadoresFiltrados.length }} registros</span>
+  </div>
+  <button class="btn-primary" (click)="nuevoOperador()">
+    <span class="icon">+</span> Nuevo Operador
+  </button>
+</div>
+
+<!-- Filtros -->
+<div class="filtros-bar">
+  <div class="search-wrapper">
+    <span class="search-icon">&#128269;</span>
+    <input
+      type="text"
+      placeholder="Buscar por nombre o cédula..."
+      [(ngModel)]="busqueda"
+      class="search-input"
+    />
+  </div>
+  <select [(ngModel)]="filtroTipo" class="filtro-select">
+    <option value="">Todos los tipos</option>
+    <option value="preventivo">Preventivo</option>
+    <option value="correctivo">Correctivo</option>
+    <option value="locativo">Locativo</option>
+  </select>
+  <select [(ngModel)]="filtroEspecialidad" class="filtro-select">
+    <option value="">Todas las especialidades</option>
+    <option value="mecanico">Mecánico</option>
+    <option value="electrico">Eléctrico</option>
+    <option value="inspeccion">Inspección</option>
+    <option value="gestion_instalaciones">Gestión de Instalaciones</option>
+  </select>
+</div>
+
+<!-- Estado de carga / error -->
+<div *ngIf="cargando" class="empty-row">Cargando operadores...</div>
+<div *ngIf="error" class="empty-row" style="color:#c62828">{{ error }}</div>
+
+<!-- Tabla -->
+<div class="table-wrapper" *ngIf="!cargando && !error">
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Operador</th>
+        <th>Cédula</th>
+        <th>Contacto</th>
+        <th>Tipo</th>
+        <th>Especialidad</th>
+        <th>Nivel Técnico</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let o of operadoresPaginados" class="table-row">
+
+        <td>
+          <div class="member-cell">
+            <div class="avatar avatar-op tipo-{{ o.tipo_operador }}">
+              {{ o.primer_nombre[0] }}{{ o.primer_apellido[0] }}
+            </div>
+            <div class="member-info">
+              <span class="member-name">{{ getNombreCompleto(o) }}</span>
+              <span class="member-sub">{{ labelEspecialidad(o.especialidad) }}</span>
+            </div>
+          </div>
+        </td>
+
+        <td class="cedula-cell">{{ o.cedula }}</td>
+
+        <td>
+          <div class="contact-cell">
+            <span>{{ o.correo }}</span>
+            <span class="phone">{{ o.telefono }}</span>
+          </div>
+        </td>
+
+        <td>
+          <span class="badge tipo-op-{{ o.tipo_operador }}">{{ labelTipo(o.tipo_operador) }}</span>
+        </td>
+
+        <td>
+          <span class="badge esp-{{ o.especialidad }}">{{ labelEspecialidad(o.especialidad) }}</span>
+        </td>
+
+        <td>
+          <span class="badge nivel-{{ o.nivel_tecnico }}">{{ labelNivel(o.nivel_tecnico) }}</span>
+        </td>
+
+        <td>
+          <button class="btn-icon" (click)="abrirDetalle(o)" title="Ver detalle">&#128065;</button>
+        </td>
+
+      </tr>
+      <tr *ngIf="operadoresFiltrados.length === 0">
+        <td colspan="7" class="empty-row">No se encontraron operadores con los filtros aplicados.</td>
+      </tr>
+    </tbody>
+  </table>
+  <app-paginacion [totalPaginas]="totalPaginas" [paginaActual]="paginaActual" (cambiarPagina)="cambiarPagina($event)"></app-paginacion>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" *ngIf="mostrarModal" (click)="cerrarModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+
+    <div class="modal-header">
+      <h2>
+        {{ modoEdicion ? (esNuevo ? 'Nuevo Operador' : 'Editar Operador') : 'Detalle del Operador' }}
+      </h2>
+      <button class="btn-close" (click)="cerrarModal()">&#x2715;</button>
+    </div>
+
+    <div class="modal-body" *ngIf="operadorSeleccionado">
+
+      <!-- Datos personales -->
+      <div class="form-section">
+        <h3 class="section-title">Datos Personales</h3>
+        <div class="form-grid">
+
+          <div class="form-group">
+            <label>Cédula <span *ngIf="modoEdicion" class="req">*</span></label>
+            <input type="text" [(ngModel)]="operadorSeleccionado.cedula"
+              [disabled]="!modoEdicion || !esNuevo" maxlength="15" />
+          </div>
+
+          <div class="form-group">
+            <label>Primer Nombre <span *ngIf="modoEdicion" class="req">*</span></label>
+            <input type="text" [(ngModel)]="operadorSeleccionado.primer_nombre"
+              [disabled]="!modoEdicion" maxlength="15" />
+          </div>
+
+          <div class="form-group">
+            <label>Segundo Nombre</label>
+            <input type="text" [(ngModel)]="operadorSeleccionado.segundo_nombre"
+              [disabled]="!modoEdicion" maxlength="15" />
+          </div>
+
+          <div class="form-group">
+            <label>Primer Apellido <span *ngIf="modoEdicion" class="req">*</span></label>
+            <input type="text" [(ngModel)]="operadorSeleccionado.primer_apellido"
+              [disabled]="!modoEdicion" maxlength="15" />
+          </div>
+
+          <div class="form-group">
+            <label>Segundo Apellido <span *ngIf="modoEdicion" class="req">*</span></label>
+            <input type="text" [(ngModel)]="operadorSeleccionado.segundo_apellido"
+              [disabled]="!modoEdicion" maxlength="15" />
+          </div>
+
+          <div class="form-group">
+            <label>Fecha de Nacimiento <span *ngIf="modoEdicion" class="req">*</span></label>
+            <input type="date" [(ngModel)]="operadorSeleccionado.fecha_nacimiento"
+              [disabled]="!modoEdicion" [max]="maxFechaNacimiento" />
+          </div>
+
+          <div class="form-group">
+            <label>Correo <span *ngIf="modoEdicion" class="req">*</span></label>
+            <input type="email" [(ngModel)]="operadorSeleccionado.correo"
+              [disabled]="!modoEdicion" maxlength="50" />
+          </div>
+
+          <div class="form-group">
+            <label>Teléfono <span *ngIf="modoEdicion" class="req">*</span></label>
+            <input type="text" [(ngModel)]="operadorSeleccionado.telefono"
+              [disabled]="!modoEdicion" maxlength="20" />
+          </div>
+
+          <div class="form-group" *ngIf="modoEdicion">
+            <label>{{ esNuevo ? 'Contraseña' : 'Nueva Contraseña (opcional)' }} <span *ngIf="esNuevo" class="req">*</span></label>
+            <input type="password" [(ngModel)]="operadorSeleccionado.password" [placeholder]="esNuevo ? '' : 'Dejar vacío para no cambiar'" />
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Perfil operacional -->
+      <div class="form-section">
+        <h3 class="section-title">Perfil Operacional</h3>
+        <div class="form-grid">
+
+          <div class="form-group">
+            <label>Tipo de Operador <span *ngIf="modoEdicion" class="req">*</span></label>
+            <select [(ngModel)]="operadorSeleccionado.tipo_operador" [disabled]="!modoEdicion">
+              <option value="preventivo">Preventivo</option>
+              <option value="correctivo">Correctivo</option>
+              <option value="locativo">Locativo</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Especialidad <span *ngIf="modoEdicion" class="req">*</span></label>
+            <select [(ngModel)]="operadorSeleccionado.especialidad" [disabled]="!modoEdicion">
+              <option value="mecanico">Mecánico</option>
+              <option value="electrico">Eléctrico</option>
+              <option value="inspeccion">Inspección</option>
+              <option value="gestion_instalaciones">Gestión de Instalaciones</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Nivel Técnico <span *ngIf="modoEdicion" class="req">*</span></label>
+            <select [(ngModel)]="operadorSeleccionado.nivel_tecnico" [disabled]="!modoEdicion">
+              <option value="basico">Básico</option>
+              <option value="intermedio">Intermedio</option>
+              <option value="avanzado">Avanzado</option>
+              <option value="experto">Experto</option>
+            </select>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Vista detalle: resumen de badges -->
+      <div class="form-section" *ngIf="!modoEdicion">
+        <h3 class="section-title">Resumen</h3>
+        <div class="resumen-badges">
+          <span class="badge tipo-op-{{ operadorSeleccionado.tipo_operador }}">
+            {{ labelTipo(operadorSeleccionado.tipo_operador) }}
+          </span>
+          <span class="badge esp-{{ operadorSeleccionado.especialidad }}">
+            {{ labelEspecialidad(operadorSeleccionado.especialidad) }}
+          </span>
+          <span class="badge nivel-{{ operadorSeleccionado.nivel_tecnico }}">
+            {{ labelNivel(operadorSeleccionado.nivel_tecnico) }}
+          </span>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="error-validacion" *ngIf="errorValidacion">{{ errorValidacion }}</div>
+
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="cerrarModal()">Cancelar</button>
+      <button *ngIf="!modoEdicion" class="btn-danger"
+        (click)="eliminar(operadorSeleccionado!.cedula)">Eliminar</button>
+      <button *ngIf="!modoEdicion" class="btn-primary" (click)="activarEdicion()">Editar</button>
+      <button *ngIf="modoEdicion" class="btn-primary" (click)="guardar()">Guardar</button>
+    </div>
+
+  </div>
+</div>

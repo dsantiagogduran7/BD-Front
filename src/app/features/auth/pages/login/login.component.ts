@@ -39,6 +39,10 @@ export class LoginComponent {
       .subscribe({
         next: (respuesta) => {
           this.cargando = false;
+          if (respuesta.rol !== this.rol) {
+            this.errorMensaje = `Rol incorrecto. Tus credenciales corresponden al rol "${respuesta.rol}".`;
+            return;
+          }
           this.sessionService.iniciarSesion(respuesta.perfil_completo, respuesta.token);
           switch (respuesta.rol) {
             case 'administrador': this.router.navigate(['/admin/home']);           break;

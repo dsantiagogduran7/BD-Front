@@ -1,104 +1,66 @@
 @import '../miembros-page/miembros-page.component.css';
+@import '../maquinas-page/maquinas-page.component.css';
+@import '../operadores-page/operadores-page.component.css';
+@import '../pagos-page/pagos-page.component.css';
 
-.btn-primary {
-
-  background: #1565c0;
-
-  color: white;
-
-  border: none;
-
-  padding: 12px 18px;
-
-  border-radius: 10px;
-
-  font-weight: 600;
-
-  cursor: pointer;
-
-  transition: 0.2s;
+/* ---- Sección de reporte ---- */
+.reporte-section {
+  background: #fff;
+  border: 1px solid #e8e8e8;
+  border-radius: 12px;
+  padding: 20px 24px;
+  margin-bottom: 28px;
 }
 
-.btn-primary:hover {
-
-  background: #0d47a1;
-}
-
-.pagination {
-
-  margin-top: 20px;
-
+.reporte-header {
   display: flex;
-
-  justify-content: center;
-
   align-items: center;
-
-  gap: 16px;
+  justify-content: space-between;
+  margin-bottom: 14px;
 }
 
-.btn-page {
-
-  border: none;
-
-  background: #1565c0;
-
-  color: white;
-
-  padding: 10px 16px;
-
-  border-radius: 8px;
-
-  cursor: pointer;
-
-  font-weight: 600;
-
-  transition: 0.2s;
-}
-
-.btn-page:hover {
-
-  background: #0d47a1;
-}
-
-.btn-page:disabled {
-
-  opacity: 0.5;
-
-  cursor: not-allowed;
-}
-
-.page-info {
-
-  font-weight: 600;
-
-  color: #424242;
-}
-
-.precio-cell {
-
+.reporte-titulo {
+  font-size: 17px;
   font-weight: 700;
-
-  color: #1b5e20;
+  color: #222;
+  margin: 0 0 2px;
 }
 
-.estado-activa {
-
-  background: #e8f5e9;
-
-  color: #1b5e20;
+.reporte-count {
+  font-size: 13px;
+  color: #888;
 }
 
-.estado-vencida {
-
-  background: #ffebee;
-
-  color: #c62828;
+.reporte-filtros {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
 }
 
-.estado-mantenimiento {
-
-  background: #fff3e0;
-
-  color: #ef6c00;
+.reporte-filtros .search-input {
+  flex: 1;
+  min-width: 200px;
 }
+
+/* ---- Botón PDF ---- */
+.btn-pdf {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 18px;
+  background: #c62828;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+  white-space: nowrap;
+}
+
+.btn-pdf:hover { background: #b71c1c; }
+
+/* ---- Precio ---- */
+.precio-cell { font-weight: 700; color: #1b5e20; }

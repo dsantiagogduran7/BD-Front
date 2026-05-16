@@ -1,381 +1,271 @@
 <div class="page-header">
-
   <div class="header-left">
-
     <h1>Clases</h1>
-
-    <span class="total-badge">
-      {{ clasesFiltradas.length }} clases
-    </span>
-
+    <span class="total-badge">{{ clasesFiltradas.length }} clases</span>
   </div>
-
   <button class="btn-primary" (click)="nuevaClase()">
-
-    <span class="icon">+</span>
-
-    Nueva Clase
-
+    <span class="icon">+</span> Nueva Clase
   </button>
-
 </div>
 
 <!-- FILTROS -->
-
 <div class="filtros-bar">
-
   <div class="search-wrapper">
-
     <span class="search-icon">&#128269;</span>
-
     <input
       type="text"
-      placeholder="Buscar clase o entrenador..."
+      placeholder="Buscar por deporte o entrenador..."
       [(ngModel)]="busqueda"
       class="search-input"
     />
-
   </div>
-
   <select [(ngModel)]="filtroEstado" class="filtro-select">
-
     <option value="">Todos los estados</option>
-
     <option value="programada">Programada</option>
-
     <option value="cancelada">Cancelada</option>
-
     <option value="finalizada">Finalizada</option>
-
   </select>
-
 </div>
+
+<!-- CARGANDO / ERROR -->
+<div *ngIf="cargando" class="empty-row">Cargando clases...</div>
+<div *ngIf="error" class="empty-row" style="color:red">{{ error }}</div>
 
 <!-- TABLA -->
-
-<div class="table-wrapper">
-
+<div class="table-wrapper" *ngIf="!cargando && !error">
   <table class="data-table">
-
     <thead>
-
-    <tr>
-
-      <th>Deporte</th>
-
-      <th>Entrenador</th>
-
-      <th>Sala</th>
-
-      <th>Fecha</th>
-
-      <th>Hora inicio</th>
-
-      <th>Cupos</th>
-
-      <th>Estado</th>
-
-      <th>Acciones</th>
-
-    </tr>
-
+      <tr>
+        <th>Deporte</th>
+        <th>Entrenador</th>
+        <th>Sala</th>
+        <th>Fecha</th>
+        <th>Horario</th>
+        <th>Cupos</th>
+        <th>Estado</th>
+        <th>Acciones</th>
+      </tr>
     </thead>
-
     <tbody>
-
-    <tr
-      *ngFor="let c of clasesFiltradas"
-      class="table-row"
-    >
-
-      <td>
-
-        <div class="member-cell">
-
-          <div class="avatar tipo-aerobico">
-            {{ c.deporte[0] }}
+      <tr *ngFor="let c of clasesPaginadas" class="table-row">
+        <td>
+          <div class="member-cell">
+            <div class="avatar tipo-aerobico">{{ (c.deporte?.nombre ?? 'C')[0] }}</div>
+            <div class="member-info">
+              <span class="member-name">{{ c.deporte?.nombre ?? '—' }}</span>
+              <span class="member-sub">{{ c.deporte?.descripcion ?? '' }}</span>
+            </div>
           </div>
-
-          <div class="member-info">
-
-            <span class="member-name">
-              {{ c.deporte }}
-            </span>
-
-            <span class="member-sub">
-              Clase deportiva
-            </span>
-
-          </div>
-
-        </div>
-
-      </td>
-
-      <td>{{ c.entrenador }}</td>
-
-      <td>Sala {{ c.sala }}</td>
-
-      <td>{{ c.fecha }}</td>
-
-      <td>{{ c.hora_inicio }}</td>
-
-      <td>{{ c.cupos }}</td>
-
-      <td>
-
-        <span class="badge exig-{{ c.estado }}">
-
-          {{ c.estado }}
-
-        </span>
-
-      </td>
-
-      <td>
-
-        <button
-          class="btn-icon"
-          (click)="abrirDetalle(c)"
-        >
-          &#128065;
-        </button>
-
-      </td>
-
-    </tr>
-
-    <tr *ngIf="clasesFiltradas.length === 0">
-
-      <td colspan="8" class="empty-row">
-
-        No se encontraron clases.
-
-      </td>
-
-    </tr>
-
+        </td>
+        <td>{{ c.nombre_entrenador }}</td>
+        <td>Sala {{ c.sala?.id_sala ?? '—' }}</td>
+        <td>{{ c.fecha }}</td>
+        <td>
+          <span *ngIf="c.horario">
+            {{ c.horario.dia_semana | titlecase }} {{ c.horario.hora_inicio }} – {{ c.horario.hora_fin }}
+          </span>
+          <span *ngIf="!c.horario">—</span>
+        </td>
+        <td>{{ c.cupos }}</td>
+        <td>
+          <span class="badge exig-{{ c.estado }}">{{ c.estado }}</span>
+        </td>
+        <td>
+          <button class="btn-icon" (click)="abrirDetalle(c)">&#128065;</button>
+        </td>
+      </tr>
+      <tr *ngIf="clasesFiltradas.length === 0">
+        <td colspan="8" class="empty-row">No se encontraron clases.</td>
+      </tr>
     </tbody>
-
   </table>
-
+  <app-paginacion [totalPaginas]="totalPaginas" [paginaActual]="paginaActual" (cambiarPagina)="cambiarPagina($event)"></app-paginacion>
 </div>
 
-<!-- MODAL -->
-
-<div
-  class="modal-overlay"
-  *ngIf="mostrarModal"
-  (click)="cerrarModal()"
->
-
-  <div
-    class="modal"
-    (click)="$event.stopPropagation()"
-  >
-
+<!-- MODAL DETALLE (solo lectura) -->
+<div class="modal-overlay" *ngIf="mostrarModal && !modoEdicion" (click)="cerrarModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
     <div class="modal-header">
-
-      <h2>
-
-        {{
-          modoEdicion
-            ? 'Editar / Crear Clase'
-            : 'Detalle de Clase'
-        }}
-
-      </h2>
-
-      <button
-        class="btn-close"
-        (click)="cerrarModal()"
-      >
-        ✕
-      </button>
-
+      <h2>Detalle de Clase</h2>
+      <button class="btn-close" (click)="cerrarModal()">✕</button>
     </div>
 
-    <div
-      class="modal-body"
-      *ngIf="claseSeleccionada"
-    >
-
+    <div class="modal-body" *ngIf="claseSeleccionada">
       <div class="form-section">
-
-        <h3 class="section-title">
-          Información General
-        </h3>
-
+        <h3 class="section-title">Información General</h3>
         <div class="form-grid">
 
           <div class="form-group">
-
             <label>Deporte</label>
-
-            <input
-              type="text"
-              [(ngModel)]="claseSeleccionada.deporte"
-              [disabled]="!modoEdicion"
-            />
-
+            <input type="text" [value]="claseSeleccionada.deporte?.nombre ?? '—'" disabled />
           </div>
 
           <div class="form-group">
-
             <label>Entrenador</label>
-
-            <input
-              type="text"
-              [(ngModel)]="claseSeleccionada.entrenador"
-              [disabled]="!modoEdicion"
-            />
-
+            <input type="text" [value]="claseSeleccionada.nombre_entrenador" disabled />
           </div>
 
           <div class="form-group">
-
             <label>Sala</label>
-
-            <input
-              type="number"
-              [(ngModel)]="claseSeleccionada.sala"
-              [disabled]="!modoEdicion"
-            />
-
+            <input type="text" [value]="'Sala ' + (claseSeleccionada.sala?.id_sala ?? '—')" disabled />
           </div>
 
           <div class="form-group">
-
             <label>Fecha</label>
-
-            <input
-              type="date"
-              [(ngModel)]="claseSeleccionada.fecha"
-              [disabled]="!modoEdicion"
-            />
-
+            <input type="text" [value]="claseSeleccionada.fecha" disabled />
           </div>
 
           <div class="form-group">
+            <label>Día</label>
+            <input type="text" [value]="claseSeleccionada.horario?.dia_semana ?? '—'" disabled />
+          </div>
 
+          <div class="form-group">
             <label>Hora inicio</label>
-
-            <input
-              type="text"
-              [(ngModel)]="claseSeleccionada.hora_inicio"
-              [disabled]="!modoEdicion"
-            />
-
+            <input type="text" [value]="claseSeleccionada.horario?.hora_inicio ?? '—'" disabled />
           </div>
 
           <div class="form-group">
-
             <label>Hora fin</label>
-
-            <input
-              type="text"
-              [(ngModel)]="claseSeleccionada.hora_fin"
-              [disabled]="!modoEdicion"
-            />
-
+            <input type="text" [value]="claseSeleccionada.horario?.hora_fin ?? '—'" disabled />
           </div>
 
           <div class="form-group">
-
             <label>Cupos</label>
-
-            <input
-              type="number"
-              [(ngModel)]="claseSeleccionada.cupos"
-              [disabled]="!modoEdicion"
-            />
-
+            <input type="text" [value]="claseSeleccionada.cupos" disabled />
           </div>
 
           <div class="form-group">
-
             <label>Estado</label>
-
-            <select
-              [(ngModel)]="claseSeleccionada.estado"
-              [disabled]="!modoEdicion"
-            >
-
-              <option value="programada">
-                Programada
-              </option>
-
-              <option value="cancelada">
-                Cancelada
-              </option>
-
-              <option value="finalizada">
-                Finalizada
-              </option>
-
-            </select>
-
+            <input type="text" [value]="claseSeleccionada.estado" disabled />
           </div>
 
         </div>
-
       </div>
 
       <div class="form-section">
-
-        <h3 class="section-title">
-          Comentario
-        </h3>
-
+        <h3 class="section-title">Comentario</h3>
         <div class="form-group">
-
-          <input
-            type="text"
-            [(ngModel)]="claseSeleccionada.comentario"
-            [disabled]="!modoEdicion"
-          />
-
+          <input type="text" [value]="claseSeleccionada.comentario" disabled />
         </div>
-
       </div>
-
     </div>
 
     <div class="modal-footer">
-
+      <button class="btn-secondary" (click)="cerrarModal()">Cerrar</button>
+      <button class="btn-primary" (click)="activarEdicion()">Editar</button>
       <button
-        class="btn-secondary"
-        (click)="cerrarModal()"
-      >
-        Cancelar
-      </button>
-
-      <button
-        *ngIf="!modoEdicion"
-        class="btn-primary"
-        (click)="modoEdicion = true"
-      >
-        Editar
-      </button>
-
-      <button
-        *ngIf="modoEdicion"
-        class="btn-primary"
-        (click)="guardar()"
-      >
-        Guardar
-      </button>
-
-      <button
-        *ngIf="modoEdicion && claseSeleccionada"
-        class="btn-secondary"
+        class="btn-danger"
+        *ngIf="claseSeleccionada"
         (click)="eliminarClase(claseSeleccionada.id_clase)"
       >
         Eliminar
       </button>
+    </div>
+  </div>
+</div>
 
+<!-- MODAL FORMULARIO (crear / editar) -->
+<div class="modal-overlay" *ngIf="mostrarModal && modoEdicion" (click)="cerrarModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>{{ form.id_clase === 0 ? 'Nueva Clase' : 'Editar Clase' }}</h2>
+      <button class="btn-close" (click)="cerrarModal()">✕</button>
     </div>
 
-  </div>
+    <div class="modal-body">
+      <div class="form-section">
+        <h3 class="section-title">Información General</h3>
+        <div class="form-grid">
 
+          <!-- FECHA — va primero para cargar horarios disponibles -->
+          <div class="form-group">
+            <label>Fecha <span class="required">*</span></label>
+            <input
+              type="date"
+              [(ngModel)]="form.fecha"
+              (change)="onFechaChange()"
+            />
+          </div>
+
+          <!-- DEPORTE -->
+          <div class="form-group">
+            <label>Deporte <span class="required">*</span></label>
+            <select [(ngModel)]="form.id_deporte">
+              <option [value]="0" disabled>Selecciona un deporte</option>
+              <option *ngFor="let d of deportes" [value]="d.id_deporte">{{ d.nombre }}</option>
+            </select>
+          </div>
+
+          <!-- HORARIO — se carga según el día de la fecha elegida -->
+          <div class="form-group">
+            <label>Horario <span class="required">*</span></label>
+            <select [(ngModel)]="form.id_horario" [disabled]="!form.fecha">
+              <option [value]="0" disabled>
+                {{ form.fecha ? 'Selecciona un horario' : 'Primero elige la fecha' }}
+              </option>
+              <option *ngFor="let h of horariosFiltrados" [value]="h.id_horario">
+                {{ h.dia_semana | titlecase }} — {{ h.hora_inicio }} a {{ h.hora_fin }}
+              </option>
+            </select>
+            <small *ngIf="form.fecha && horariosFiltrados.length === 0">
+              No hay horarios disponibles para ese día.
+            </small>
+          </div>
+
+          <!-- SALA -->
+          <div class="form-group">
+            <label>Sala <span class="required">*</span></label>
+            <select [(ngModel)]="form.id_sala">
+              <option [value]="0" disabled>Selecciona una sala</option>
+              <option *ngFor="let s of salas" [value]="s.id_sala">
+                Sala {{ s.id_sala }} (cap. {{ s.capacidad }})
+              </option>
+            </select>
+          </div>
+
+          <!-- ENTRENADOR -->
+          <div class="form-group">
+            <label>Entrenador <span class="required">*</span></label>
+            <select [(ngModel)]="form.cedula_entrenador">
+              <option value="" disabled>Selecciona un entrenador</option>
+              <option *ngFor="let e of entrenadores" [value]="e.cedula">
+                {{ e.primer_nombre }} {{ e.primer_apellido }}
+              </option>
+            </select>
+          </div>
+
+          <!-- CUPOS -->
+          <div class="form-group">
+            <label>Cupos <span class="required">*</span></label>
+            <input type="number" [(ngModel)]="form.cupos" min="1" />
+          </div>
+
+          <!-- ESTADO: solo editable al modificar una clase existente -->
+          <div class="form-group">
+            <label>Estado</label>
+            <select [(ngModel)]="form.estado" [disabled]="form.id_clase === 0">
+              <option value="programada">Programada</option>
+              <option value="cancelada">Cancelada</option>
+              <option value="finalizada">Finalizada</option>
+            </select>
+            <small *ngIf="form.id_clase === 0">Las clases nuevas inician como <strong>programada</strong>.</small>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h3 class="section-title">Comentario <span class="required">*</span></h3>
+        <div class="form-group">
+          <input type="text" [(ngModel)]="form.comentario" placeholder="Observaciones sobre la clase..." />
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="cerrarModal()">Cancelar</button>
+      <button class="btn-primary" (click)="guardar()">Guardar</button>
+    </div>
+  </div>
 </div>

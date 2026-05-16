@@ -1,0 +1,26 @@
+@import '../miembros-page/miembros-page.component.css';
+
+.cols-1 { grid-template-columns: 1fr; }
+
+.desc-cell {
+  max-width: 400px;
+  color: #555;
+  font-size: 13px;
+}
+
+textarea {
+  width: 100%;
+  min-height: 80px;
+  resize: none;
+  border-radius: 7px;
+  border: 1px solid #ddd;
+  padding: 9px 12px;
+  font-family: inherit;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+textarea:focus { border-color: #1b5e20; }
+textarea:disabled { background: #f9f9f9; color: #333; border-color: #eee; cursor: default; }

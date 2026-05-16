@@ -1,369 +1,155 @@
 <div class="page-header">
-
   <div class="header-left">
-
     <h1>Contenidos</h1>
-
-    <span class="total-badge">
-      {{ contenidosFiltrados.length }} contenidos
-    </span>
-
+    <span class="total-badge">{{ contenidosFiltrados.length }} registros</span>
   </div>
-
-  <button
-    class="btn-primary"
-    (click)="abrirNuevo()"
-  >
-    + Nuevo Contenido
+  <button class="btn-primary" (click)="nuevoContenido()">
+    <span class="icon">+</span> Nuevo Contenido
   </button>
-
 </div>
 
 <!-- Filtros -->
-
 <div class="filtros-bar">
-
   <div class="search-wrapper">
-
-    <span class="search-icon">
-      &#128269;
-    </span>
-
+    <span class="search-icon">&#128269;</span>
     <input
       type="text"
-      class="search-input"
-      placeholder="Buscar contenido..."
+      placeholder="Buscar por título, autor o deporte..."
       [(ngModel)]="busqueda"
+      class="search-input"
     />
-
   </div>
-
-  <select
-    class="filtro-select"
-    [(ngModel)]="filtroTipo"
-  >
-
-    <option value="">
-      Todos los tipos
-    </option>
-
-    <option value="video">
-      Video
-    </option>
-
-    <option value="articulo">
-      Artículo
-    </option>
-
-    <option value="guia">
-      Guía
-    </option>
-
-    <option value="tutorial">
-      Tutorial
-    </option>
-
-    <option value="podcast">
-      Podcast
-    </option>
-
-    <option value="infografia">
-      Infografía
-    </option>
-
+  <select [(ngModel)]="filtroTipo" class="filtro-select">
+    <option value="">Todos los tipos</option>
+    <option value="video">Video</option>
+    <option value="articulo">Artículo</option>
+    <option value="guia">Guía</option>
+    <option value="tutorial">Tutorial</option>
+    <option value="podcast">Podcast</option>
+    <option value="infografia">Infografía</option>
   </select>
-
 </div>
 
 <!-- Tabla -->
-
 <div class="table-wrapper">
-
   <table class="data-table">
-
     <thead>
-
-    <tr>
-
-      <th>ID</th>
-      <th>Título</th>
-      <th>Tipo</th>
-      <th>Deporte</th>
-      <th>Fecha</th>
-      <th>Acciones</th>
-
-    </tr>
-
+      <tr>
+        <th>Contenido</th>
+        <th>Tipo</th>
+        <th>Deporte</th>
+        <th>Autor</th>
+        <th>Fecha</th>
+        <th>Acciones</th>
+      </tr>
     </thead>
-
     <tbody>
-
-    <tr
-      *ngFor="let c of contenidosPaginados"
-      class="table-row"
-    >
-
-      <td>
-        #{{ c.id_contenido }}
-      </td>
-
-      <td>
-
-        <div class="member-cell">
-
-          <div class="avatar">
-            {{ c.titulo[0] }}
+      <tr *ngFor="let c of contenidosPaginados" class="table-row">
+        <td>
+          <div class="member-cell">
+            <div class="avatar tipo-av-{{ c.tipo_contenido }}">{{ c.titulo[0] }}</div>
+            <div class="member-info">
+              <span class="member-name">{{ c.titulo }}</span>
+              <span class="member-age">{{ c.descripcion }}</span>
+            </div>
           </div>
-
-          <div class="member-info">
-
-              <span class="member-name">
-                {{ c.titulo }}
-              </span>
-
-            <span class="member-sub">
-                {{ c.descripcion }}
-              </span>
-
-          </div>
-
-        </div>
-
-      </td>
-
-      <td>
-
-          <span class="badge tipo-{{ c.tipo_contenido }}">
-            {{ c.tipo_contenido }}
-          </span>
-
-      </td>
-
-      <td>
-        {{ c.deporte }}
-      </td>
-
-      <td>
-        {{ c.fecha_publicacion }}
-      </td>
-
-      <td class="acciones-cell">
-
-        <button
-          class="btn-icon edit-btn"
-          (click)="abrirEditar(c)"
-        >
-          ✏️
-        </button>
-
-        <button
-          class="btn-icon delete-btn"
-          (click)="eliminarContenido(c.id_contenido)"
-        >
-          🗑️
-        </button>
-
-      </td>
-
-    </tr>
-
-    <tr *ngIf="contenidosPaginados.length === 0">
-
-      <td colspan="6" class="empty-row">
-        No se encontraron contenidos.
-      </td>
-
-    </tr>
-
+        </td>
+        <td><span class="badge tipo-{{ c.tipo_contenido }}">{{ c.tipo_contenido }}</span></td>
+        <td>{{ c.deporte_nombre }}</td>
+        <td>{{ c.autor }}</td>
+        <td>{{ c.fecha_publicacion }}</td>
+        <td>
+          <button class="btn-icon" (click)="abrirDetalle(c)" title="Ver detalle">&#128065;</button>
+        </td>
+      </tr>
+      <tr *ngIf="contenidosFiltrados.length === 0">
+        <td colspan="6" class="empty-row">No se encontraron contenidos con los filtros aplicados.</td>
+      </tr>
     </tbody>
-
   </table>
-
+  <app-paginacion
+    [totalPaginas]="totalPaginas"
+    [paginaActual]="paginaActual"
+    (cambiarPagina)="cambiarPagina($event)"
+  ></app-paginacion>
 </div>
 
-<!-- Paginación -->
-
-<div class="pagination">
-
-  <button
-    class="btn-page"
-    (click)="cambiarPagina(paginaActual - 1)"
-    [disabled]="paginaActual === 1"
-  >
-    Anterior
-  </button>
-
-  <span class="page-info">
-
-    Página {{ paginaActual }}
-    de {{ totalPaginas }}
-
-  </span>
-
-  <button
-    class="btn-page"
-    (click)="cambiarPagina(paginaActual + 1)"
-    [disabled]="paginaActual === totalPaginas"
-  >
-    Siguiente
-  </button>
-
-</div>
-
-<!-- Modal -->
-
-<div
-  class="modal-overlay"
-  *ngIf="mostrarModal"
-  (click)="cerrarModal()"
->
-
-  <div
-    class="modal"
-    (click)="$event.stopPropagation()"
-  >
-
+<!-- Modal detalle / edición -->
+<div class="modal-overlay" *ngIf="mostrarModal" (click)="cerrarModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
     <div class="modal-header">
-
-      <h2>
-
-        {{
-          modoEdicion
-            ? 'Editar Contenido'
-            : 'Nuevo Contenido'
-        }}
-
-      </h2>
-
-      <button
-        class="btn-close"
-        (click)="cerrarModal()"
-      >
-        &#10005;
-      </button>
-
+      <h2>{{ modoEdicion ? (esNuevo ? 'Nuevo Contenido' : 'Editar Contenido') : 'Detalle del Contenido' }}</h2>
+      <button class="btn-close" (click)="cerrarModal()">&#x2715;</button>
     </div>
 
-    <div class="modal-body">
+    <div class="modal-body" *ngIf="contenidoSeleccionado">
 
       <div class="form-section">
-
+        <h3 class="section-title">Información General</h3>
         <div class="form-grid">
 
           <div class="form-group">
-
             <label>Título</label>
-
-            <input
-              type="text"
-              [(ngModel)]="contenidoSeleccionado.titulo"
-            />
-
+            <input type="text" [(ngModel)]="contenidoSeleccionado.titulo" [disabled]="!modoEdicion" maxlength="50" />
           </div>
 
           <div class="form-group">
-
-            <label>Tipo</label>
-
-            <select
-              [(ngModel)]="contenidoSeleccionado.tipo_contenido"
-            >
-
-              <option value="video">
-                Video
-              </option>
-
-              <option value="articulo">
-                Artículo
-              </option>
-
-              <option value="guia">
-                Guía
-              </option>
-
-              <option value="tutorial">
-                Tutorial
-              </option>
-
-              <option value="podcast">
-                Podcast
-              </option>
-
-              <option value="infografia">
-                Infografía
-              </option>
-
+            <label>Tipo de Contenido</label>
+            <select [(ngModel)]="contenidoSeleccionado.tipo_contenido" [disabled]="!modoEdicion">
+              <option value="video">Video</option>
+              <option value="articulo">Artículo</option>
+              <option value="guia">Guía</option>
+              <option value="tutorial">Tutorial</option>
+              <option value="podcast">Podcast</option>
+              <option value="infografia">Infografía</option>
             </select>
-
           </div>
 
           <div class="form-group">
+            <label>Autor</label>
+            <input type="text" [(ngModel)]="contenidoSeleccionado.autor" [disabled]="!modoEdicion" maxlength="100" />
+          </div>
 
+          <div class="form-group">
             <label>Deporte</label>
-
-            <input
-              type="text"
-              [(ngModel)]="contenidoSeleccionado.deporte"
-            />
-
+            <select [(ngModel)]="contenidoSeleccionado.id_deporte" [disabled]="!modoEdicion">
+              <option [ngValue]="0" disabled>Selecciona un deporte</option>
+              <option *ngFor="let d of deportes" [ngValue]="d.id_deporte">{{ d.nombre }}</option>
+            </select>
           </div>
 
           <div class="form-group">
+            <label>Fecha de Publicación</label>
+            <input type="date" [(ngModel)]="contenidoSeleccionado.fecha_publicacion" [disabled]="!modoEdicion" />
+          </div>
 
-            <label>Fecha</label>
-
-            <input
-              type="date"
-              [(ngModel)]="contenidoSeleccionado.fecha_publicacion"
-            />
-
+          <div class="form-group">
+            <label>Duración (minutos)</label>
+            <input type="number" [(ngModel)]="contenidoSeleccionado.duracion" [disabled]="!modoEdicion" min="1" />
           </div>
 
           <div class="form-group full-width">
-
-            <label>URL Recurso</label>
-
-            <input
-              type="text"
-              [(ngModel)]="contenidoSeleccionado.url_del_recurso"
-            />
-
+            <label>URL del Recurso</label>
+            <input type="text" [(ngModel)]="contenidoSeleccionado.url_del_recurso" [disabled]="!modoEdicion" maxlength="500" />
           </div>
 
           <div class="form-group full-width">
-
             <label>Descripción</label>
-
-            <textarea
-              [(ngModel)]="contenidoSeleccionado.descripcion"
-            ></textarea>
-
+            <textarea [(ngModel)]="contenidoSeleccionado.descripcion" [disabled]="!modoEdicion" maxlength="200"></textarea>
           </div>
 
         </div>
-
       </div>
 
     </div>
 
+    <div class="error-validacion" *ngIf="errorValidacion">{{ errorValidacion }}</div>
+
     <div class="modal-footer">
-
-      <button
-        class="btn-secondary"
-        (click)="cerrarModal()"
-      >
-        Cancelar
-      </button>
-
-      <button
-        class="btn-primary"
-        (click)="guardarContenido()"
-      >
-        Guardar
-      </button>
-
+      <button class="btn-secondary" (click)="cerrarModal()">Cancelar</button>
+      <button *ngIf="!modoEdicion" class="btn-danger" (click)="eliminar(contenidoSeleccionado!.id_contenido)">Eliminar</button>
+      <button *ngIf="!modoEdicion" class="btn-primary" (click)="modoEdicion = true">Editar</button>
+      <button *ngIf="modoEdicion" class="btn-primary" (click)="guardar()">Guardar</button>
     </div>
-
   </div>
-
 </div>

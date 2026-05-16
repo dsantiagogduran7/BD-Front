@@ -1,280 +1,218 @@
 <div class="page-header">
-
   <div class="header-left">
     <h1>Pagos</h1>
-    <span class="total-badge">
-      {{ pagosFiltrados.length }} pagos
-    </span>
+    <span class="total-badge">{{ pagosFiltrados.length }} registros</span>
   </div>
-
 </div>
 
 <!-- Filtros -->
-
 <div class="filtros-bar">
-
   <div class="search-wrapper">
-
-    <span class="search-icon">
-      &#128269;
-    </span>
-
+    <span class="search-icon">&#128269;</span>
     <input
       type="text"
       class="search-input"
-      placeholder="Buscar miembro, cédula o plan..."
+      placeholder="Buscar por miembro o cédula..."
       [(ngModel)]="busqueda"
     />
-
   </div>
-
-  <select
-    class="filtro-select"
-    [(ngModel)]="filtroMetodo"
-  >
+  <select class="filtro-select" [(ngModel)]="filtroMetodo">
     <option value="">Todos los métodos</option>
     <option value="efectivo">Efectivo</option>
     <option value="tarjeta_credito">Tarjeta Crédito</option>
     <option value="tarjeta_debito">Tarjeta Débito</option>
     <option value="transferencia">Transferencia</option>
   </select>
-
-  <select
-    class="filtro-select"
-    [(ngModel)]="filtroEstado"
-  >
+  <select class="filtro-select" [(ngModel)]="filtroEstado">
     <option value="">Todos los estados</option>
     <option value="activa">Activa</option>
     <option value="inactiva">Inactiva</option>
     <option value="vencida">Vencida</option>
     <option value="suspendida">Suspendida</option>
   </select>
-
 </div>
+
+<!-- Estado carga / error -->
+<div *ngIf="cargando" class="empty-row">Cargando pagos...</div>
+<div *ngIf="error" class="empty-row" style="color:#c62828">{{ error }}</div>
 
 <!-- Tabla -->
-
-<div class="table-wrapper">
-
+<div class="table-wrapper" *ngIf="!cargando && !error">
   <table class="data-table">
-
     <thead>
-
-    <tr>
-      <th>ID</th>
-      <th>Miembro</th>
-      <th>Plan</th>
-      <th>Método</th>
-      <th>Valor</th>
-      <th>Fecha</th>
-      <th>Estado</th>
-      <th>Acciones</th>
-    </tr>
-
+      <tr>
+        <th>#</th>
+        <th>Miembro</th>
+        <th>Plan</th>
+        <th>Método</th>
+        <th>Valor</th>
+        <th>Fecha Pago</th>
+        <th>Membresía</th>
+        <th>Acciones</th>
+      </tr>
     </thead>
-
     <tbody>
+      <tr *ngFor="let p of pagosPaginados" class="table-row">
 
-    <tr
-      *ngFor="let p of pagosFiltrados"
-      class="table-row"
-    >
+        <td class="cedula-cell">#{{ p.id_pago }}</td>
 
-      <td>#{{ p.id_pago }}</td>
-
-      <td>
-
-        <div class="member-cell">
-
-          <div class="avatar">
-            {{ p.miembro[0] }}
+        <td>
+          <div class="member-cell">
+            <div class="avatar">{{ (p.nombre_miembro ?? '?')[0] }}</div>
+            <div class="member-info">
+              <span class="member-name">{{ p.nombre_miembro }}</span>
+              <span class="member-sub">{{ p.miembro_cedula }}</span>
+            </div>
           </div>
+        </td>
 
-          <div class="member-info">
-            <span class="member-name">
-              {{ p.miembro }}
-            </span>
+        <td>
+          <span class="badge dur-{{ p.plan_duracion }}">{{ labelDuracion(p.plan_duracion) }}</span>
+        </td>
 
-            <span class="member-sub">
-              {{ p.cedula }}
-            </span>
-          </div>
+        <td>
+          <span class="badge metodo-{{ p.metodo_pago }}">{{ labelMetodo(p.metodo_pago) }}</span>
+        </td>
 
-        </div>
+        <td class="precio-cell">{{ formatearPrecio(p.valor_pagado) }}</td>
 
-      </td>
+        <td>{{ p.fecha_pago }}</td>
 
-      <td>{{ p.plan }}</td>
+        <td>
+          <span class="badge mem-{{ p.estado_membresia }}">{{ labelEstado(p.estado_membresia) }}</span>
+        </td>
 
-      <td>
+        <td>
+          <button class="btn-icon" (click)="abrirDetalle(p)" title="Ver detalle">&#128065;</button>
+        </td>
 
-        <span class="badge metodo-{{ p.metodo_pago }}">
-          {{ p.metodo_pago.replace('_', ' ') }}
-        </span>
-
-      </td>
-
-      <td class="precio-cell">
-        {{ formatearPrecio(p.valor_pagado) }}
-      </td>
-
-      <td>{{ p.fecha_pago }}</td>
-
-      <td>
-
-        <span class="badge mem-{{ p.estado_membresia }}">
-          {{ p.estado_membresia }}
-        </span>
-
-      </td>
-
-      <td>
-
-        <button
-          class="btn-icon"
-          (click)="abrirDetalle(p)"
-        >
-          &#128065;
-        </button>
-
-      </td>
-
-    </tr>
-
-    <tr *ngIf="pagosFiltrados.length === 0">
-
-      <td colspan="8" class="empty-row">
-        No se encontraron pagos.
-      </td>
-
-    </tr>
-
+      </tr>
+      <tr *ngIf="pagosFiltrados.length === 0">
+        <td colspan="8" class="empty-row">No se encontraron pagos con los filtros aplicados.</td>
+      </tr>
     </tbody>
-
   </table>
-
+  <app-paginacion [totalPaginas]="totalPaginas" [paginaActual]="paginaActual" (cambiarPagina)="cambiarPagina($event)"></app-paginacion>
 </div>
 
-<!-- Modal -->
-
-<div
-  class="modal-overlay"
-  *ngIf="mostrarModal"
-  (click)="cerrarModal()"
->
-
-  <div
-    class="modal"
-    (click)="$event.stopPropagation()"
-  >
+<!-- Modal detalle -->
+<div class="modal-overlay" *ngIf="mostrarModal" (click)="cerrarModal()">
+  <div class="modal modal-lg" (click)="$event.stopPropagation()">
 
     <div class="modal-header">
-
-      <h2>Detalle del Pago</h2>
-
-      <button
-        class="btn-close"
-        (click)="cerrarModal()"
-      >
-        &#10005;
-      </button>
-
+      <h2>Detalle del Pago #{{ pagoSeleccionado?.id_pago }}</h2>
+      <button class="btn-close" (click)="cerrarModal()">&#x2715;</button>
     </div>
 
-    <div
-      class="modal-body"
-      *ngIf="pagoSeleccionado"
-    >
+    <div class="modal-body" *ngIf="pagoSeleccionado">
 
+      <!-- Sección: Pago -->
       <div class="form-section">
-
-        <h3 class="section-title">
-          Información del Pago
-        </h3>
-
+        <h3 class="section-title">Información del Pago</h3>
         <div class="form-grid">
 
           <div class="form-group">
             <label>ID Pago</label>
-            <input
-              [value]="pagoSeleccionado.id_pago"
-              disabled
-            />
-          </div>
-
-          <div class="form-group">
-            <label>Miembro</label>
-            <input
-              [value]="pagoSeleccionado.miembro"
-              disabled
-            />
-          </div>
-
-          <div class="form-group">
-            <label>Cédula</label>
-            <input
-              [value]="pagoSeleccionado.cedula"
-              disabled
-            />
-          </div>
-
-          <div class="form-group">
-            <label>Plan</label>
-            <input
-              [value]="pagoSeleccionado.plan"
-              disabled
-            />
+            <input type="text" [value]="'#' + pagoSeleccionado.id_pago" disabled />
           </div>
 
           <div class="form-group">
             <label>Método de Pago</label>
-            <input
-              [value]="pagoSeleccionado.metodo_pago"
-              disabled
-            />
+            <input type="text" [value]="labelMetodo(pagoSeleccionado.metodo_pago)" disabled />
           </div>
 
           <div class="form-group">
             <label>Fecha de Pago</label>
-            <input
-              [value]="pagoSeleccionado.fecha_pago"
-              disabled
-            />
+            <input type="text" [value]="pagoSeleccionado.fecha_pago" disabled />
           </div>
 
           <div class="form-group">
             <label>Valor Pagado</label>
-            <input
-              [value]="formatearPrecio(pagoSeleccionado.valor_pagado)"
-              disabled
-            />
-          </div>
-
-          <div class="form-group">
-            <label>Estado Membresía</label>
-            <input
-              [value]="pagoSeleccionado.estado_membresia"
-              disabled
-            />
+            <input type="text" [value]="formatearPrecio(pagoSeleccionado.valor_pagado)" disabled />
           </div>
 
         </div>
+      </div>
 
+      <!-- Sección: Miembro -->
+      <div class="form-section">
+        <h3 class="section-title">Miembro</h3>
+        <div class="form-grid">
+
+          <div class="form-group">
+            <label>Nombre</label>
+            <input type="text" [value]="pagoSeleccionado.nombre_miembro" disabled />
+          </div>
+
+          <div class="form-group">
+            <label>Cédula</label>
+            <input type="text" [value]="pagoSeleccionado.miembro_cedula" disabled />
+          </div>
+
+          <div class="form-group">
+            <label>Correo</label>
+            <input type="text" [value]="pagoSeleccionado.correo_miembro ?? '—'" disabled />
+          </div>
+
+          <div class="form-group">
+            <label>Teléfono</label>
+            <input type="text" [value]="pagoSeleccionado.telefono_miembro ?? '—'" disabled />
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Sección: Membresía -->
+      <div class="form-section">
+        <h3 class="section-title">Membresía</h3>
+        <div class="form-grid">
+
+          <div class="form-group">
+            <label>Fecha de Inicio</label>
+            <input type="text" [value]="pagoSeleccionado.fecha_inicio_membresia" disabled />
+          </div>
+
+          <div class="form-group">
+            <label>Fecha de Fin</label>
+            <input type="text" [value]="pagoSeleccionado.fecha_fin_membresia" disabled />
+          </div>
+
+          <div class="form-group">
+            <label>Estado</label>
+            <input type="text" [value]="labelEstado(pagoSeleccionado.estado_membresia)" disabled />
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Sección: Plan -->
+      <div class="form-section">
+        <h3 class="section-title">Plan</h3>
+        <div class="form-grid">
+
+          <div class="form-group">
+            <label>ID Plan</label>
+            <input type="text" [value]="pagoSeleccionado.plan_id ?? '—'" disabled />
+          </div>
+
+          <div class="form-group">
+            <label>Duración</label>
+            <input type="text" [value]="labelDuracion(pagoSeleccionado.plan_duracion)" disabled />
+          </div>
+
+          <div class="form-group">
+            <label>Precio del Plan</label>
+            <input type="text" [value]="formatearPrecio(pagoSeleccionado.plan_precio)" disabled />
+          </div>
+
+        </div>
       </div>
 
     </div>
 
     <div class="modal-footer">
-
-      <button
-        class="btn-secondary"
-        (click)="cerrarModal()"
-      >
-        Cerrar
-      </button>
-
+      <button class="btn-secondary" (click)="cerrarModal()">Cerrar</button>
     </div>
 
   </div>
-
 </div>

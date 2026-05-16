@@ -52,7 +52,7 @@
     </tr>
     </thead>
     <tbody>
-    <tr *ngFor="let e of entrenadoresFiltrados" class="table-row">
+    <tr *ngFor="let e of entrenadoresPaginados" class="table-row">
       <td>
         <div class="member-cell">
           <div class="avatar tipo-{{ e.tipo_entrenamiento }}">{{ e.primer_nombre[0] }}{{ e.primer_apellido[0] }}</div>
@@ -90,6 +90,7 @@
     </tr>
     </tbody>
   </table>
+  <app-paginacion [totalPaginas]="totalPaginas" [paginaActual]="paginaActual" (cambiarPagina)="cambiarPagina($event)"></app-paginacion>
 </div>
 
 <!-- Modal -->
@@ -127,7 +128,7 @@
           </div>
           <div class="form-group">
             <label>Fecha de Nacimiento</label>
-            <input type="date" [(ngModel)]="entrenadorSeleccionado.fecha_nacimiento" [disabled]="!modoEdicion" />
+            <input type="date" [(ngModel)]="entrenadorSeleccionado.fecha_nacimiento" [disabled]="!modoEdicion" [max]="maxFechaNacimiento" />
           </div>
           <div class="form-group">
             <label>Correo</label>
@@ -172,7 +173,7 @@
           </div>
           <div class="form-group">
             <label>Fecha de Ingreso al Sistema</label>
-            <input type="date" [(ngModel)]="entrenadorSeleccionado.fecha_ingreso_sis" [disabled]="!modoEdicion" />
+            <input type="date" [(ngModel)]="entrenadorSeleccionado.fecha_ingreso_sis" [disabled]="!modoEdicion" [max]="hoy" />
           </div>
         </div>
       </div>

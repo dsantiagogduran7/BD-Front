@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MiembrosApiService } from '../../../../core/services/api/miembros-api.service';
 import { MiembroDto } from '../../../../models/dto/miembro.dto';
+import { PaginacionComponent } from '../../../../shared/components/paginacion/paginacion.component';
 
 @Component({
   selector: 'app-miembros',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, PaginacionComponent],
   templateUrl: './miembros-page.component.html',
   styleUrl: './miembros-page.component.css'
 })
@@ -25,6 +26,8 @@ export class MiembrosPageComponent implements OnInit {
   errorValidacion: string = '';
 
   miembros: MiembroDto[] = [];
+  paginaActual = 1;
+  readonly itemsPorPagina = 10;
 
   constructor(private miembrosApi: MiembrosApiService) {}
 
@@ -46,6 +49,11 @@ export class MiembrosPageComponent implements OnInit {
       }
     });
   }
+
+  get totalPaginas(): number { return Math.max(1, Math.ceil(this.miembrosFiltrados.length / this.itemsPorPagina)); }
+  get miembrosPaginados(): MiembroDto[] { const i = (this.paginaActual - 1) * this.itemsPorPagina; return this.miembrosFiltrados.slice(i, i + this.itemsPorPagina); }
+  cambiarPagina(n: number): void { this.paginaActual = n; }
+  resetPagina(): void { this.paginaActual = 1; }
 
   get miembrosFiltrados(): MiembroDto[] {
     return this.miembros.filter(m => {
@@ -86,19 +94,38 @@ export class MiembrosPageComponent implements OnInit {
     this.errorValidacion = '';
   }
 
+  get hoy(): string { return new Date().toISOString().split('T')[0]; }
+  get maxFechaNacimiento(): string {
+    const d = new Date(); d.setFullYear(d.getFullYear() - 16); return d.toISOString().split('T')[0];
+  }
+
+  private calcularEdad(fecha: string): number {
+    const hoy = new Date(), nac = new Date(fecha);
+    let edad = hoy.getFullYear() - nac.getFullYear();
+    const mes = hoy.getMonth() - nac.getMonth();
+    if (mes < 0 || (mes === 0 && hoy.getDate() < nac.getDate())) edad--;
+    return edad;
+  }
+
   private validar(): string {
     const m = this.miembroSeleccionado!;
     if (!m.cedula?.trim()) return 'La cédula es obligatoria.';
+    if (m.cedula.trim().length > 15) return 'La cédula no puede tener más de 15 caracteres.';
+    if (!/^[a-zA-Z0-9]+$/.test(m.cedula.trim())) return 'La cédula solo puede contener letras y números.';
     if (!m.primer_nombre?.trim()) return 'El primer nombre es obligatorio.';
     if (!m.primer_apellido?.trim()) return 'El primer apellido es obligatorio.';
     if (!m.segundo_apellido?.trim()) return 'El segundo apellido es obligatorio.';
     if (!m.correo?.trim()) return 'El correo es obligatorio.';
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(m.correo)) return 'El correo no tiene un formato válido.';
     if (!m.telefono?.trim()) return 'El teléfono es obligatorio.';
+    if (!/^\+?[0-9\s\-]{7,20}$/.test(m.telefono.trim())) return 'El teléfono solo puede contener dígitos, espacios, + o - (mínimo 7 dígitos).';
     if (!m.fecha_nacimiento) return 'La fecha de nacimiento es obligatoria.';
-    if (!m.altura || m.altura <= 0) return 'La altura debe ser mayor a 0.';
-    if (!m.peso_actual || m.peso_actual <= 0) return 'El peso debe ser mayor a 0.';
+    if (m.fecha_nacimiento > this.hoy) return 'La fecha de nacimiento no puede ser futura.';
+    if (this.calcularEdad(m.fecha_nacimiento) < 16) return 'El miembro debe tener al menos 16 años.';
+    if (!m.altura || m.altura < 50 || m.altura > 250) return 'La altura debe estar entre 50 y 250 cm.';
+    if (!m.peso_actual || m.peso_actual < 20 || m.peso_actual > 300) return 'El peso debe estar entre 20 y 300 kg.';
     if (this.esNuevo && !m.password?.trim()) return 'La contraseña es obligatoria.';
+    if (this.esNuevo && m.password!.trim().length < 6) return 'La contraseña debe tener al menos 6 caracteres.';
     return '';
   }
 

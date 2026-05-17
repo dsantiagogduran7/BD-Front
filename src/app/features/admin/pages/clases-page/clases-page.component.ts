@@ -7,6 +7,8 @@ import { HorariosApiService } from '../../../../core/services/api/horarios-api.s
 import { DeportesApiService } from '../../../../core/services/api/deportes-api.service';
 import { SalasApiService } from '../../../../core/services/api/salas-api.service';
 import { EntrenadoresApiService } from '../../../../core/services/api/entrenadores-api.service';
+import { AsistirApiService } from '../../../../core/services/api/asistir-api.service';
+import { MiembrosApiService } from '../../../../core/services/api/miembros-api.service';
 import { ClaseDto, ClaseFormDto } from '../../../../models/dto/clase.dto';
 import { PaginacionComponent } from '../../../../shared/components/paginacion/paginacion.component';
 
@@ -30,6 +32,7 @@ export class ClasesPageComponent implements OnInit {
   modoEdicion = false;
   cargando = true;
   error = '';
+  errorValidacion = '';
 
   clases: ClaseDto[] = [];
   paginaActual = 1;
@@ -42,12 +45,22 @@ export class ClasesPageComponent implements OnInit {
   claseSeleccionada: ClaseDto | null = null;
   form: ClaseFormDto = this.formVacio();
 
+  // ── Inscritos ─────────────────────────────────────
+  inscritosClase: any[] = [];
+  cargandoInscritos = false;
+
+  // ── Detalle de miembro ─────────────────────────────
+  miembroDetalle: any | null = null;
+  mostrarMiembroDetalle = false;
+
   constructor(
     private clasesApi: ClasesApiService,
     private horariosApi: HorariosApiService,
     private deportesApi: DeportesApiService,
     private salasApi: SalasApiService,
-    private entrenadoresApi: EntrenadoresApiService
+    private entrenadoresApi: EntrenadoresApiService,
+    private asistirApi: AsistirApiService,
+    private miembrosApi: MiembrosApiService
   ) {}
 
   ngOnInit(): void {
@@ -103,6 +116,12 @@ export class ClasesPageComponent implements OnInit {
     this.claseSeleccionada = clase;
     this.modoEdicion = false;
     this.mostrarModal = true;
+    this.inscritosClase = [];
+    this.cargandoInscritos = true;
+    this.asistirApi.consultarPorClase(clase.id_clase).subscribe({
+      next: data => { this.inscritosClase = data; this.cargandoInscritos = false; },
+      error: () => { this.cargandoInscritos = false; }
+    });
   }
 
   nuevaClase(): void {
@@ -138,6 +157,7 @@ export class ClasesPageComponent implements OnInit {
   }
 
   guardar(): void {
+    this.errorValidacion = '';
     if (!this.formValido()) return;
 
     const payload = {
@@ -159,8 +179,7 @@ export class ClasesPageComponent implements OnInit {
     obs.subscribe({
       next: () => { this.cerrarModal(); this.recargar(); },
       error: (err) => {
-        const msg = err?.error?.error ?? 'Error al guardar la clase.';
-        alert(msg);
+        this.errorValidacion = err?.error?.error ?? 'Error al guardar la clase.';
       }
     });
   }
@@ -169,7 +188,7 @@ export class ClasesPageComponent implements OnInit {
     if (!confirm('¿Desea eliminar esta clase?')) return;
     this.clasesApi.eliminar(id).subscribe({
       next: () => { this.cerrarModal(); this.recargar(); },
-      error: () => { alert('Error al eliminar la clase.'); }
+      error: () => { this.errorValidacion = 'Error al eliminar la clase.'; }
     });
   }
 
@@ -177,6 +196,26 @@ export class ClasesPageComponent implements OnInit {
     this.mostrarModal = false;
     this.claseSeleccionada = null;
     this.modoEdicion = false;
+    this.errorValidacion = '';
+    this.inscritosClase = [];
+  }
+
+  // ── Detalle de miembro ─────────────────────────────
+  verMiembro(cedula: string): void {
+    this.miembrosApi.buscarPorCedula(cedula).subscribe({
+      next: data => { this.miembroDetalle = data; this.mostrarMiembroDetalle = true; },
+      error: () => {}
+    });
+  }
+
+  cerrarMiembroDetalle(): void {
+    this.miembroDetalle = null;
+    this.mostrarMiembroDetalle = false;
+  }
+
+  nombreCompleto(m: any): string {
+    return [m.primer_nombre, m.segundo_nombre, m.primer_apellido, m.segundo_apellido]
+      .filter(Boolean).join(' ');
   }
 
   private recargar(): void {
@@ -187,27 +226,21 @@ export class ClasesPageComponent implements OnInit {
 
   private formVacio(): ClaseFormDto {
     return {
-      id_clase: 0,
-      estado: 'programada',
-      comentario: '',
-      cupos: 0,
-      fecha: '',
-      id_sala: 0,
-      id_horario: 0,
-      id_deporte: 0,
-      cedula_entrenador: ''
+      id_clase: 0, estado: 'programada', comentario: '',
+      cupos: 0, fecha: '', id_sala: 0, id_horario: 0,
+      id_deporte: 0, cedula_entrenador: ''
     };
   }
 
   private formValido(): boolean {
     const f = this.form;
-    if (!f.fecha) { alert('Selecciona una fecha.'); return false; }
-    if (!f.id_deporte) { alert('Selecciona un deporte.'); return false; }
-    if (!f.id_horario) { alert('Selecciona un horario.'); return false; }
-    if (!f.id_sala) { alert('Selecciona una sala.'); return false; }
-    if (!f.cedula_entrenador.trim()) { alert('Selecciona un entrenador.'); return false; }
-    if (!f.cupos || f.cupos <= 0) { alert('Los cupos deben ser mayores a 0.'); return false; }
-    if (!f.comentario.trim()) { alert('Ingresa un comentario.'); return false; }
+    if (!f.fecha) { this.errorValidacion = 'Selecciona una fecha.'; return false; }
+    if (!f.id_deporte) { this.errorValidacion = 'Selecciona un deporte.'; return false; }
+    if (!f.id_horario) { this.errorValidacion = 'Selecciona un horario.'; return false; }
+    if (!f.id_sala) { this.errorValidacion = 'Selecciona una sala.'; return false; }
+    if (!f.cedula_entrenador.trim()) { this.errorValidacion = 'Selecciona un entrenador.'; return false; }
+    if (!f.cupos || f.cupos <= 0) { this.errorValidacion = 'Los cupos deben ser mayores a 0.'; return false; }
+    if (!f.comentario.trim()) { this.errorValidacion = 'Ingresa un comentario.'; return false; }
     return true;
   }
 }

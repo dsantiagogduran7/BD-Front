@@ -1,85 +1,21 @@
 .navbar {
-
-  height: 70px;
-
-  background: white;
-
-  display: flex;
-
-  justify-content: space-between;
-
-  align-items: center;
-
-  padding: 0 24px;
-
-  border-bottom: 1px solid #e0e0e0;
+  height: 70px; background: white;
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 0 30px; box-shadow: 0 2px 5px rgba(0,0,0,0.08);
 }
-
-.navbar-left h1 {
-
-  margin: 0;
-
-  color: #1b5e20;
-
-  font-size: 26px;
+.navbar h3 { font-size: 16px; font-weight: 700; color: #1a1a1a; margin: 0; }
+.user-info { display: flex; align-items: center; gap: 16px; }
+.user-chip { display: flex; align-items: center; gap: 10px; }
+.user-avatar {
+  width: 36px; height: 36px; background: #1b5e20; color: white;
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 700; flex-shrink: 0;
 }
-
-.navbar-right {
-
-  display: flex;
-
-  align-items: center;
+.user-details { display: flex; flex-direction: column; }
+.user-name { font-size: 14px; font-weight: 600; color: #1a1a1a; line-height: 1.2; }
+.user-rol { font-size: 11px; color: #888; text-transform: capitalize; }
+.btn-logout {
+  padding: 8px 16px; border: 1.5px solid #1b5e20; background: white;
+  color: #1b5e20; border-radius: 7px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s;
 }
-
-.trainer-profile {
-
-  display: flex;
-
-  align-items: center;
-
-  gap: 12px;
-}
-
-.avatar {
-
-  width: 42px;
-
-  height: 42px;
-
-  border-radius: 50%;
-
-  background: #1b5e20;
-
-  color: white;
-
-  display: flex;
-
-  align-items: center;
-
-  justify-content: center;
-
-  font-weight: bold;
-
-  font-size: 18px;
-}
-
-.trainer-info {
-
-  display: flex;
-
-  flex-direction: column;
-}
-
-.trainer-name {
-
-  font-weight: 700;
-
-  color: #212121;
-}
-
-.trainer-role {
-
-  font-size: 13px;
-
-  color: #757575;
-}
+.btn-logout:hover { background: #1b5e20; color: white; }

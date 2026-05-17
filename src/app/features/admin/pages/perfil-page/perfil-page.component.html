@@ -1,0 +1,56 @@
+<div class="page-header">
+  <div class="header-left">
+    <h1>Mi Perfil</h1>
+  </div>
+</div>
+
+<div class="perfil-card" *ngIf="admin">
+  <div class="perfil-avatar">{{ session.iniciales() }}</div>
+  <div class="perfil-info">
+    <span class="perfil-nombre">{{ session.nombreCompleto() }}</span>
+    <span class="perfil-rol">{{ session.rol() }}</span>
+    <span class="perfil-correo">{{ admin.correo }}</span>
+  </div>
+  <div class="perfil-cedula">
+    <span class="cedula-label">Cédula</span>
+    <span class="cedula-valor">{{ admin.cedula }}</span>
+  </div>
+</div>
+
+<div class="section-card" *ngIf="admin">
+  <h3 class="section-title">Datos Personales</h3>
+  <div class="info-grid">
+    <div class="info-field">
+      <span class="info-label">Primer Nombre</span>
+      <span class="info-valor">{{ admin.primer_nombre }}</span>
+    </div>
+    <div class="info-field">
+      <span class="info-label">Segundo Nombre</span>
+      <span class="info-valor">{{ admin.segundo_nombre || '—' }}</span>
+    </div>
+    <div class="info-field">
+      <span class="info-label">Primer Apellido</span>
+      <span class="info-valor">{{ admin.primer_apellido }}</span>
+    </div>
+    <div class="info-field">
+      <span class="info-label">Segundo Apellido</span>
+      <span class="info-valor">{{ admin.segundo_apellido || '—' }}</span>
+    </div>
+    <div class="info-field">
+      <span class="info-label">Fecha de Nacimiento</span>
+      <span class="info-valor">{{ admin.fecha_nacimiento }} ({{ getEdad(admin.fecha_nacimiento) }} años)</span>
+    </div>
+    <div class="info-field">
+      <span class="info-label">Teléfono</span>
+      <span class="info-valor">{{ admin.telefono }}</span>
+    </div>
+    <div class="info-field full-span">
+      <span class="info-label">Correo electrónico</span>
+      <span class="info-valor">{{ admin.correo }}</span>
+    </div>
+    <div class="info-field full-span">
+      <span class="info-label">Rol</span>
+      <span class="badge rol-admin">{{ admin.rol }}</span>
+    </div>
+  </div>
+</div>

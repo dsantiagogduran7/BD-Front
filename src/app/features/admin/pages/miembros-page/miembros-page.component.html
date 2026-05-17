@@ -11,7 +11,7 @@
 <!-- Filtros -->
 <div class="filtros-bar">
   <div class="search-wrapper">
-    <span class="search-icon">&#128269;</span>
+    <span class="search-icon"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
     <input
       type="text"
       placeholder="Buscar por nombre o cédula..."
@@ -34,8 +34,12 @@
   </select>
 </div>
 
+<!-- Estado de carga / error -->
+<div *ngIf="cargando" class="empty-row">Cargando miembros...</div>
+<div *ngIf="error" class="empty-row" style="color:#c62828">{{ error }}</div>
+
 <!-- Tabla -->
-<div class="table-wrapper">
+<div class="table-wrapper" *ngIf="!cargando && !error">
   <table class="data-table">
     <thead>
     <tr>
@@ -82,7 +86,7 @@
         <span class="plan-label" *ngIf="m.plan_nombre">{{ m.plan_nombre }}</span>
       </td>
       <td>
-        <button class="btn-icon btn-ver" (click)="abrirDetalle(m)" title="Ver detalle">&#128065;</button>
+        <button class="btn-icon btn-ver" (click)="abrirDetalle(m)" title="Ver detalle"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
       </td>
     </tr>
     <tr *ngIf="miembrosFiltrados.length === 0">
@@ -108,7 +112,7 @@
         <div class="form-grid">
           <div class="form-group">
             <label>Cédula</label>
-            <input type="text" [(ngModel)]="miembroSeleccionado.cedula" [disabled]="!modoEdicion" />
+            <input type="text" [(ngModel)]="miembroSeleccionado.cedula" [disabled]="!modoEdicion || !esNuevo" />
           </div>
           <div class="form-group">
             <label>Primer Nombre</label>

@@ -1,1 +1,195 @@
-<p>mis-entrenadores-page works!</p>
+<div class="page-header">
+  <div class="header-left">
+    <h1>Mis Entrenadores</h1>
+    <span class="total-badge">{{ itemsFiltrados.length }} entrenadores</span>
+  </div>
+</div>
+
+<div class="filtros-bar">
+  <div class="search-wrapper">
+    <span class="search-icon"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+    <input type="text" placeholder="Buscar por nombre del entrenador..."
+           [(ngModel)]="busqueda" class="search-input" />
+  </div>
+</div>
+
+<div *ngIf="cargando" class="empty-row">Cargando entrenadores...</div>
+<div *ngIf="error" class="empty-row" style="color:#c62828">{{ error }}</div>
+
+<div class="table-wrapper" *ngIf="!cargando && !error">
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Entrenador</th>
+        <th>Especialidad</th>
+        <th>Nivel de exigencia</th>
+        <th>Plan asignado</th>
+        <th>Vinculado desde</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let item of itemsPaginados" class="table-row">
+        <td>
+          <div class="member-cell">
+            <div class="avatar">{{ item.nombre_entrenador[0] }}</div>
+            <div class="member-info">
+              <span class="member-name">{{ item.nombre_entrenador }}</span>
+              <span class="member-sub">{{ item.cedula_entrenador }}</span>
+            </div>
+          </div>
+        </td>
+        <td>
+          <span class="badge badge-tipo">{{ labelTipo(item.entrenador?.tipo_entrenamiento) }}</span>
+        </td>
+        <td>
+          <span class="badge" [ngClass]="'badge-exigencia-' + item.entrenador?.nivel_exigencia">
+            {{ labelExigencia(item.entrenador?.nivel_exigencia) }}
+          </span>
+        </td>
+        <td>
+          <span class="badge" [class.badge-si]="item.tiene_plan" [class.badge-no]="!item.tiene_plan">
+            {{ item.tiene_plan ? 'Sí' : 'No' }}
+          </span>
+        </td>
+        <td>{{ item.fecha_asignacion }}</td>
+        <td>
+          <div class="action-group">
+            <button class="btn-icon" title="Ver detalle del entrenador" (click)="abrirDetalle(item)">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+            <button class="btn-sm btn-danger" (click)="abrirConfirmar(item)">Desvincular</button>
+          </div>
+        </td>
+      </tr>
+      <tr *ngIf="itemsFiltrados.length === 0">
+        <td colspan="6" class="empty-row">No tienes entrenadores asignados.</td>
+      </tr>
+    </tbody>
+  </table>
+  <app-paginacion [totalPaginas]="totalPaginas" [paginaActual]="paginaActual" (cambiarPagina)="cambiarPagina($event)"></app-paginacion>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- MODAL: Ver detalle del entrenador              -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="modal-overlay" *ngIf="mostrarDetalle" (click)="cerrarDetalle()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Detalle del Entrenador</h2>
+      <button class="btn-close" (click)="cerrarDetalle()">&#x2715;</button>
+    </div>
+    <div class="modal-body" *ngIf="itemViendo">
+
+      <div class="form-section">
+        <h3 class="section-title">Datos Personales</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Cédula</label>
+            <input type="text" [value]="itemViendo.cedula_entrenador" disabled />
+          </div>
+          <div class="form-group">
+            <label>Nombre Completo</label>
+            <input type="text" [value]="itemViendo.nombre_entrenador" disabled />
+          </div>
+          <div class="form-group">
+            <label>Correo</label>
+            <input type="text" [value]="itemViendo.entrenador?.correo ?? '—'" disabled />
+          </div>
+          <div class="form-group">
+            <label>Teléfono</label>
+            <input type="text" [value]="itemViendo.entrenador?.telefono ?? '—'" disabled />
+          </div>
+          <div class="form-group">
+            <label>Fecha de Nacimiento</label>
+            <input type="text"
+              [value]="itemViendo.entrenador?.fecha_nacimiento
+                ? itemViendo.entrenador.fecha_nacimiento + ' (' + getEdad(itemViendo.entrenador.fecha_nacimiento) + ' años)'
+                : '—'"
+              disabled />
+          </div>
+          <div class="form-group">
+            <label>Años de experiencia</label>
+            <input type="text" [value]="(itemViendo.entrenador?.tiempo_experiencia ?? '—') + ' años'" disabled />
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h3 class="section-title">Perfil de Entrenamiento</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Especialidad</label>
+            <input type="text" [value]="labelTipo(itemViendo.entrenador?.tipo_entrenamiento)" disabled />
+          </div>
+          <div class="form-group">
+            <label>Nivel de exigencia</label>
+            <input type="text" [value]="labelExigencia(itemViendo.entrenador?.nivel_exigencia)" disabled />
+          </div>
+          <div class="form-group full-span" *ngIf="itemViendo.entrenador?.deportes?.length">
+            <label>Deportes</label>
+            <input type="text" [value]="deportesLabel(itemViendo.entrenador.deportes)" disabled />
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h3 class="section-title">Asignación</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Vinculado desde</label>
+            <input type="text" [value]="itemViendo.fecha_asignacion" disabled />
+          </div>
+          <div class="form-group">
+            <label>Plan de entrenamiento</label>
+            <input type="text" [value]="itemViendo.tiene_plan ? 'Sí tiene plan' : 'Sin plan aún'" disabled />
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="cerrarDetalle()">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- MODAL: Confirmar desvincular entrenador        -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="modal-overlay" *ngIf="mostrarConfirmar" (click)="cerrarConfirmar()">
+  <div class="modal modal-sm" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Desvincular entrenador</h2>
+      <button class="btn-close" (click)="cerrarConfirmar()">&#x2715;</button>
+    </div>
+    <div class="modal-body" *ngIf="itemAEliminar">
+
+      <div class="confirm-panel">
+        <div class="confirm-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        </div>
+        <p class="confirm-title">¿Estás seguro de desvincular a <strong>{{ itemAEliminar.nombre_entrenador }}</strong>?</p>
+        <p class="confirm-sub">Esto es lo que ocurrirá si continúas:</p>
+        <ul class="confirm-lista">
+          <li>Se eliminará la asignación entre tú y este entrenador.</li>
+          <li *ngIf="itemAEliminar.tiene_plan">
+            <strong>Tienes un plan de entrenamiento con este entrenador.</strong> El plan y todos sus ejercicios serán eliminados de forma permanente.
+          </li>
+          <li *ngIf="!itemAEliminar.tiene_plan">
+            No tienes un plan activo con este entrenador, por lo que solo se eliminará la asignación.
+          </li>
+          <li>Esta acción <strong>no se puede deshacer</strong>.</li>
+        </ul>
+      </div>
+
+      <div class="error-validacion" *ngIf="errorEliminar">{{ errorEliminar }}</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="cerrarConfirmar()" [disabled]="eliminando">Cancelar</button>
+      <button class="btn-danger-full" [disabled]="eliminando" (click)="confirmarDesvincular()">
+        {{ eliminando ? 'Desvinculando...' : 'Sí, desvincular' }}
+      </button>
+    </div>
+  </div>
+</div>

@@ -14,6 +14,10 @@ export class ClasesApiService {
     return this.http.get<any[]>(this.base);
   }
 
+  listarPorEntrenador(cedula: string): Observable<any[]> {
+    return this.http.get<any[]>(`${this.base}/entrenador/${cedula}`);
+  }
+
   buscarPorId(id: number): Observable<any> {
     return this.http.get<any>(`${this.base}/${id}`);
   }

@@ -1,0 +1,294 @@
+<div class="page-header">
+  <div class="header-left">
+    <h1>Mis Clases</h1>
+    <span class="total-badge">{{ clasesFiltradas.length }} clases</span>
+  </div>
+  <button class="btn-primary" (click)="nuevaClase()">
+    <span class="icon">+</span> Nueva Clase
+  </button>
+</div>
+
+<!-- FILTROS -->
+<div class="filtros-bar">
+  <div class="search-wrapper">
+    <span class="search-icon"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+    <input type="text" placeholder="Buscar por deporte..."
+           [(ngModel)]="busqueda" class="search-input" />
+  </div>
+  <select [(ngModel)]="filtroEstado" class="filtro-select">
+    <option value="">Todos los estados</option>
+    <option value="programada">Programada</option>
+    <option value="cancelada">Cancelada</option>
+    <option value="finalizada">Finalizada</option>
+  </select>
+</div>
+
+<div *ngIf="cargando" class="empty-row">Cargando clases...</div>
+<div *ngIf="error"    class="empty-row" style="color:#c62828">{{ error }}</div>
+
+<!-- TABLA -->
+<div class="table-wrapper" *ngIf="!cargando && !error">
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Deporte</th>
+        <th>Sala</th>
+        <th>Fecha</th>
+        <th>Horario</th>
+        <th>Cupos</th>
+        <th>Estado</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let c of clasesPaginadas" class="table-row">
+        <td>
+          <div class="member-cell">
+            <div class="avatar tipo-aerobico">{{ (c.deporte?.nombre ?? 'C')[0] }}</div>
+            <div class="member-info">
+              <span class="member-name">{{ c.deporte?.nombre ?? '—' }}</span>
+              <span class="member-sub">{{ c.deporte?.descripcion ?? '' }}</span>
+            </div>
+          </div>
+        </td>
+        <td>Sala {{ c.sala?.id_sala ?? '—' }}</td>
+        <td>{{ c.fecha }}</td>
+        <td>
+          <span *ngIf="c.horario">
+            {{ c.horario.dia_semana | titlecase }} {{ c.horario.hora_inicio }} – {{ c.horario.hora_fin }}
+          </span>
+          <span *ngIf="!c.horario">—</span>
+        </td>
+        <td>{{ c.cupos }}</td>
+        <td><span class="badge exig-{{ c.estado }}">{{ c.estado }}</span></td>
+        <td>
+          <button class="btn-icon" (click)="abrirDetalle(c)" title="Ver detalle"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        </td>
+      </tr>
+      <tr *ngIf="clasesFiltradas.length === 0">
+        <td colspan="7" class="empty-row">No tienes clases programadas.</td>
+      </tr>
+    </tbody>
+  </table>
+  <app-paginacion [totalPaginas]="totalPaginas" [paginaActual]="paginaActual"
+                  (cambiarPagina)="cambiarPagina($event)"></app-paginacion>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- MODAL DETALLE                                   -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="modal-overlay" *ngIf="mostrarModal && !modoEdicion" (click)="cerrarModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Detalle de Clase</h2>
+      <button class="btn-close" (click)="cerrarModal()">&#x2715;</button>
+    </div>
+
+    <div class="modal-body" *ngIf="claseSeleccionada">
+      <div class="form-section">
+        <h3 class="section-title">Información General</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Deporte</label>
+            <input type="text" [value]="claseSeleccionada.deporte?.nombre ?? '—'" disabled />
+          </div>
+          <div class="form-group">
+            <label>Sala</label>
+            <input type="text" [value]="'Sala ' + (claseSeleccionada.sala?.id_sala ?? '—')" disabled />
+          </div>
+          <div class="form-group">
+            <label>Fecha</label>
+            <input type="text" [value]="claseSeleccionada.fecha" disabled />
+          </div>
+          <div class="form-group">
+            <label>Día</label>
+            <input type="text" [value]="claseSeleccionada.horario?.dia_semana ?? '—'" disabled />
+          </div>
+          <div class="form-group">
+            <label>Hora inicio</label>
+            <input type="text" [value]="claseSeleccionada.horario?.hora_inicio ?? '—'" disabled />
+          </div>
+          <div class="form-group">
+            <label>Hora fin</label>
+            <input type="text" [value]="claseSeleccionada.horario?.hora_fin ?? '—'" disabled />
+          </div>
+          <div class="form-group">
+            <label>Cupos</label>
+            <input type="text" [value]="claseSeleccionada.cupos" disabled />
+          </div>
+          <div class="form-group">
+            <label>Estado</label>
+            <input type="text" [value]="claseSeleccionada.estado" disabled />
+          </div>
+        </div>
+      </div>
+      <div class="form-section">
+        <h3 class="section-title">Comentario</h3>
+        <div class="form-group">
+          <input type="text" [value]="claseSeleccionada.comentario" disabled />
+        </div>
+      </div>
+
+      <!-- ── Miembros Inscritos ───────────────────────── -->
+      <div class="form-section">
+        <h3 class="section-title">
+          Miembros Inscritos
+          <span class="inscritos-count">{{ inscritosClase.length }}</span>
+        </h3>
+        <div *ngIf="cargandoInscritos" class="empty-row">Cargando...</div>
+        <div *ngIf="!cargandoInscritos && inscritosClase.length === 0" class="empty-row">
+          No hay miembros inscritos en esta clase.
+        </div>
+        <div class="inscritos-list" *ngIf="!cargandoInscritos && inscritosClase.length > 0">
+          <div class="inscrito-row" *ngFor="let i of inscritosClase">
+            <div class="avatar avatar-inscrito">{{ i.nombre_miembro[0] }}</div>
+            <div class="inscrito-info">
+              <span class="inscrito-nombre">{{ i.nombre_miembro }}</span>
+              <span class="inscrito-cedula">CC {{ i.miembro_cedula }}</span>
+            </div>
+            <button class="btn-icon" (click)="verMiembro(i.miembro_cedula)" title="Ver detalle">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="cerrarModal()">Cerrar</button>
+      <button class="btn-primary" (click)="activarEdicion()">Editar</button>
+      <button class="btn-danger" *ngIf="claseSeleccionada"
+              (click)="eliminarClase(claseSeleccionada.id_clase)">Eliminar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL DETALLE MIEMBRO ═══════════════════════════════════════════════ -->
+<div class="modal-overlay modal-top" *ngIf="mostrarMiembroDetalle" (click)="cerrarMiembroDetalle()">
+  <div class="modal modal-miembro" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Perfil del Miembro</h2>
+      <button class="btn-close" (click)="cerrarMiembroDetalle()">&#x2715;</button>
+    </div>
+    <div class="modal-body" *ngIf="miembroDetalle">
+      <div class="miembro-perfil-header">
+        <div class="miembro-avatar-lg">{{ miembroDetalle.primer_nombre?.[0] }}{{ miembroDetalle.primer_apellido?.[0] }}</div>
+        <div>
+          <p class="miembro-nombre-lg">{{ nombreCompleto(miembroDetalle) }}</p>
+          <p class="miembro-cedula-lg">CC {{ miembroDetalle.cedula }}</p>
+        </div>
+      </div>
+      <div class="form-section">
+        <h3 class="section-title">Datos del Miembro</h3>
+        <div class="form-grid">
+          <div class="form-group"><label>Correo</label><input type="text" [value]="miembroDetalle.correo" disabled /></div>
+          <div class="form-group"><label>Teléfono</label><input type="text" [value]="miembroDetalle.telefono" disabled /></div>
+          <div class="form-group"><label>Fecha nacimiento</label><input type="text" [value]="miembroDetalle.fecha_nacimiento" disabled /></div>
+          <div class="form-group"><label>Altura (cm)</label><input type="text" [value]="miembroDetalle.altura" disabled /></div>
+          <div class="form-group"><label>Peso (kg)</label><input type="text" [value]="miembroDetalle.peso_actual" disabled /></div>
+          <div class="form-group"><label>Nivel Experiencia</label><input type="text" [value]="miembroDetalle.nivel_experiencia" disabled /></div>
+          <div class="form-group"><label>Estado Membresía</label><input type="text" [value]="miembroDetalle.membresia_estado ?? '—'" disabled /></div>
+          <div class="form-group"><label>Plan</label><input type="text" [value]="miembroDetalle.plan_nombre ?? '—'" disabled /></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="cerrarMiembroDetalle()">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- MODAL FORMULARIO (crear / editar)               -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="modal-overlay" *ngIf="mostrarModal && modoEdicion" (click)="cerrarModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>{{ form.id_clase === 0 ? 'Nueva Clase' : 'Editar Clase' }}</h2>
+      <button class="btn-close" (click)="cerrarModal()">&#x2715;</button>
+    </div>
+
+    <div class="modal-body">
+      <div class="form-section">
+        <h3 class="section-title">Información General</h3>
+        <div class="form-grid">
+
+          <!-- FECHA -->
+          <div class="form-group">
+            <label>Fecha <span class="required">*</span></label>
+            <input type="date" [(ngModel)]="form.fecha" (change)="onFechaChange()" />
+          </div>
+
+          <!-- DEPORTE -->
+          <div class="form-group">
+            <label>Deporte <span class="required">*</span></label>
+            <select [(ngModel)]="form.id_deporte">
+              <option [value]="0" disabled>Selecciona un deporte</option>
+              <option *ngFor="let d of deportes" [value]="d.id_deporte">{{ d.nombre }}</option>
+            </select>
+          </div>
+
+          <!-- HORARIO -->
+          <div class="form-group">
+            <label>Horario <span class="required">*</span></label>
+            <select [(ngModel)]="form.id_horario" [disabled]="!form.fecha">
+              <option [value]="0" disabled>
+                {{ form.fecha ? 'Selecciona un horario' : 'Primero elige la fecha' }}
+              </option>
+              <option *ngFor="let h of horariosFiltrados" [value]="h.id_horario">
+                {{ h.dia_semana | titlecase }} — {{ h.hora_inicio }} a {{ h.hora_fin }}
+              </option>
+            </select>
+            <small *ngIf="form.fecha && horariosFiltrados.length === 0">
+              No hay horarios disponibles para ese día.
+            </small>
+          </div>
+
+          <!-- SALA -->
+          <div class="form-group">
+            <label>Sala <span class="required">*</span></label>
+            <select [(ngModel)]="form.id_sala">
+              <option [value]="0" disabled>Selecciona una sala</option>
+              <option *ngFor="let s of salas" [value]="s.id_sala">
+                Sala {{ s.id_sala }} (cap. {{ s.capacidad }})
+              </option>
+            </select>
+          </div>
+
+          <!-- CUPOS -->
+          <div class="form-group">
+            <label>Cupos <span class="required">*</span></label>
+            <input type="number" [(ngModel)]="form.cupos" min="1" />
+          </div>
+
+          <!-- ESTADO -->
+          <div class="form-group">
+            <label>Estado</label>
+            <select [(ngModel)]="form.estado" [disabled]="form.id_clase === 0">
+              <option value="programada">Programada</option>
+              <option value="cancelada">Cancelada</option>
+              <option value="finalizada">Finalizada</option>
+            </select>
+            <small *ngIf="form.id_clase === 0">Las clases nuevas inician como <strong>programada</strong>.</small>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h3 class="section-title">Comentario <span class="required">*</span></h3>
+        <div class="form-group">
+          <input type="text" [(ngModel)]="form.comentario"
+                 placeholder="Observaciones sobre la clase..." />
+        </div>
+      </div>
+    </div>
+
+    <div class="error-validacion" *ngIf="errorValidacion">{{ errorValidacion }}</div>
+
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="cerrarModal()">Cancelar</button>
+      <button class="btn-primary" (click)="guardar()">Guardar</button>
+    </div>
+  </div>
+</div>

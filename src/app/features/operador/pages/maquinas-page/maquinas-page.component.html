@@ -1,1 +1,133 @@
-<p>maquinas-page works!</p>
+<div class="page-header">
+  <div class="header-left">
+    <h1>Máquinas</h1>
+  </div>
+</div>
+
+<div *ngIf="errorAccion" class="error-banner">{{ errorAccion }}</div>
+<div *ngIf="cargando" class="empty-row">Cargando máquinas...</div>
+<div *ngIf="error" class="empty-row error-text">{{ error }}</div>
+
+<!-- MIS MÁQUINAS -->
+<div class="table-section" *ngIf="!cargando && !error">
+  <div class="section-header">
+    <h2>Mis Máquinas</h2>
+    <span class="badge-count">{{ misMaquinas.length }}</span>
+  </div>
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Máquina</th>
+        <th>Tipo</th>
+        <th>Estado</th>
+        <th>Último Mantenimiento</th>
+        <th>Tipo Mant.</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let m of misMaquinas" class="table-row">
+        <td>
+          <div class="member-cell">
+            <div class="avatar tipo-{{ m.tipo_maquina }}">{{ m.nombre_maquina[0] }}</div>
+            <div class="member-info">
+              <span class="member-name">{{ m.nombre_maquina }}</span>
+              <span class="member-sub">{{ m.marca }} — {{ m.modelo }}</span>
+            </div>
+          </div>
+        </td>
+        <td>
+          <span class="badge tipo-badge tipo-{{ m.tipo_maquina }}">{{ labelTipo(m.tipo_maquina) }}</span>
+        </td>
+        <td>
+          <span class="badge estado-{{ m.estado }}">{{ labelEstado(m.estado) }}</span>
+        </td>
+        <td>{{ getMiMant(m.codigo_serie)?.fecha_mantenimiento ?? '—' }}</td>
+        <td>
+          <span *ngIf="getMiMant(m.codigo_serie)" class="badge mant-tipo-{{ getMiMant(m.codigo_serie)?.tipo_mant }}">
+            {{ labelTipoMant(getMiMant(m.codigo_serie)?.tipo_mant) }}
+          </span>
+          <span *ngIf="!getMiMant(m.codigo_serie)">—</span>
+        </td>
+        <td>
+          <div class="action-group">
+            <button class="btn-sm btn-primary" (click)="abrirCambioEstado(m)">Estado</button>
+            <button class="btn-sm btn-danger" (click)="liberarMaquina(m.codigo_serie)">Liberar</button>
+          </div>
+        </td>
+      </tr>
+      <tr *ngIf="misMaquinas.length === 0">
+        <td colspan="6" class="empty-row">No tienes máquinas asignadas.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- DISPONIBLES -->
+<div class="table-section" *ngIf="!cargando && !error">
+  <div class="section-header">
+    <h2>Disponibles</h2>
+    <span class="badge-count">{{ disponibles.length }}</span>
+  </div>
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Máquina</th>
+        <th>Tipo</th>
+        <th>Estado</th>
+        <th>Capacidad</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let m of disponibles" class="table-row">
+        <td>
+          <div class="member-cell">
+            <div class="avatar tipo-{{ m.tipo_maquina }}">{{ m.nombre_maquina[0] }}</div>
+            <div class="member-info">
+              <span class="member-name">{{ m.nombre_maquina }}</span>
+              <span class="member-sub">{{ m.marca }} — {{ m.modelo }}</span>
+            </div>
+          </div>
+        </td>
+        <td>
+          <span class="badge tipo-badge tipo-{{ m.tipo_maquina }}">{{ labelTipo(m.tipo_maquina) }}</span>
+        </td>
+        <td>
+          <span class="badge estado-{{ m.estado }}">{{ labelEstado(m.estado) }}</span>
+        </td>
+        <td>{{ m.capacidad }} personas</td>
+        <td>
+          <button class="btn-sm btn-primary" (click)="reclamarMaquina(m)">Tomar</button>
+        </td>
+      </tr>
+      <tr *ngIf="disponibles.length === 0">
+        <td colspan="5" class="empty-row">No hay máquinas disponibles.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- MODAL CAMBIO DE ESTADO -->
+<div class="modal-overlay" *ngIf="mostrarCambioEstado" (click)="cerrarCambioEstado()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Cambiar Estado</h2>
+      <button class="btn-close" (click)="cerrarCambioEstado()">&#x2715;</button>
+    </div>
+    <div class="modal-body" *ngIf="maquinaEditando">
+      <p class="maquina-label">{{ maquinaEditando.nombre_maquina }}</p>
+      <div class="form-group">
+        <label>Nuevo Estado</label>
+        <select [(ngModel)]="nuevoEstado">
+          <option *ngFor="let e of estados" [value]="e">{{ labelEstado(e) }}</option>
+        </select>
+      </div>
+      <div class="error-validacion" *ngIf="errorAccion">{{ errorAccion }}</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="cerrarCambioEstado()">Cancelar</button>
+      <button class="btn-primary" (click)="guardarEstado()">Guardar</button>
+    </div>
+  </div>
+</div>

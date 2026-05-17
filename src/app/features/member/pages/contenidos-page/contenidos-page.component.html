@@ -1,1 +1,152 @@
-<p>contenidos-page works!</p>
+<!-- ══════════════════════════════════ HEADER ══════════════════════════════════ -->
+<div class="page-header">
+  <h1>Contenidos</h1>
+  <p class="page-subtitle">Artículos, videos, guías y más para tu entrenamiento</p>
+</div>
+
+<!-- ══════════════════════════════════ FILTROS ═════════════════════════════════ -->
+<div class="filtros-bar">
+  <div class="search-wrapper">
+    <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input type="text" class="search-input" placeholder="Buscar por título, autor o deporte..."
+           [(ngModel)]="busqueda" />
+  </div>
+  <div class="chips-bar">
+    <button *ngFor="let t of tipos"
+            class="chip"
+            [class.chip-active]="filtroTipo === t.valor"
+            (click)="filtroTipo = t.valor">
+      {{ t.label }}
+    </button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════ ESTADO ══════════════════════════════════ -->
+<div *ngIf="cargando" class="estado-cargando">
+  <div class="spinner"></div>
+  <p>Cargando contenidos...</p>
+</div>
+<div *ngIf="error" class="estado-error">{{ error }}</div>
+
+<!-- ══════════════════════════════════ GRID ════════════════════════════════════ -->
+<div class="content-grid" *ngIf="!cargando && !error">
+
+  <div class="content-card" *ngFor="let c of contenidosFiltrados"
+       (click)="abrirContenido(c)" tabindex="0" (keydown.enter)="abrirContenido(c)">
+
+    <!-- Banner con gradiente -->
+    <div class="card-banner banner-{{ c.tipo_contenido }}">
+      <div class="banner-icon">
+        <svg *ngIf="c.tipo_contenido === 'video'"      xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8" fill="white" stroke="none"/></svg>
+        <svg *ngIf="c.tipo_contenido === 'articulo'"   xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        <svg *ngIf="c.tipo_contenido === 'guia'"       xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+        <svg *ngIf="c.tipo_contenido === 'tutorial'"   xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+        <svg *ngIf="c.tipo_contenido === 'podcast'"    xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+        <svg *ngIf="c.tipo_contenido === 'infografia'" xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      </div>
+      <span class="tipo-chip">{{ labelTipo(c.tipo_contenido) }}</span>
+      <span *ngIf="c.duracion" class="duracion-chip">{{ c.duracion }} min</span>
+    </div>
+
+    <!-- Cuerpo -->
+    <div class="card-body">
+      <h3 class="card-title">{{ c.titulo }}</h3>
+      <p class="card-desc">{{ c.descripcion }}</p>
+      <div class="card-tags">
+        <span class="deporte-tag">{{ c.deporte_nombre }}</span>
+      </div>
+      <div class="card-footer-meta">
+        <span class="card-author">{{ c.autor }}</span>
+        <span class="card-date">{{ formatFecha(c.fecha_publicacion) }}</span>
+      </div>
+    </div>
+
+    <div class="card-cta">
+      <span class="cta-label">
+        <span *ngIf="c.tipo_contenido === 'video'">Ver video</span>
+        <span *ngIf="c.tipo_contenido === 'podcast'">Escuchar</span>
+        <span *ngIf="c.tipo_contenido !== 'video' && c.tipo_contenido !== 'podcast'">Leer más</span>
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </span>
+    </div>
+  </div>
+
+  <!-- Estado vacío -->
+  <div class="empty-state" *ngIf="contenidosFiltrados.length === 0">
+    <svg xmlns="http://www.w3.org/2000/svg" width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <p>No se encontraron contenidos con esos filtros.</p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════ MODAL VISOR ════════════════════════════ -->
+<div class="modal-overlay" *ngIf="contenidoAbierto" (click)="cerrar()">
+  <div class="modal-visor" (click)="$event.stopPropagation()">
+
+    <!-- Header -->
+    <div class="visor-header">
+      <div class="visor-header-meta">
+        <span class="tipo-chip tipo-{{ contenidoAbierto.tipo_contenido }}">
+          {{ labelTipo(contenidoAbierto.tipo_contenido) }}
+        </span>
+        <span *ngIf="contenidoAbierto.deporte_nombre" class="deporte-tag">
+          {{ contenidoAbierto.deporte_nombre }}
+        </span>
+        <span *ngIf="contenidoAbierto.duracion" class="duracion-chip">
+          {{ contenidoAbierto.duracion }} min
+        </span>
+      </div>
+      <button class="btn-cerrar" (click)="cerrar()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <!-- Título y autor -->
+    <h2 class="visor-titulo">{{ contenidoAbierto.titulo }}</h2>
+    <p class="visor-byline">
+      Por <strong>{{ contenidoAbierto.autor }}</strong>
+      <span *ngIf="contenidoAbierto.fecha_publicacion"> · {{ formatFecha(contenidoAbierto.fecha_publicacion) }}</span>
+    </p>
+
+    <!-- Embed YouTube -->
+    <div class="video-wrapper" *ngIf="embedUrl">
+      <iframe [src]="embedUrl"
+              frameborder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen>
+      </iframe>
+    </div>
+
+    <!-- Ícono cuando no hay embed -->
+    <div class="tipo-visual" *ngIf="!embedUrl">
+      <div class="tipo-visual-icon banner-{{ contenidoAbierto.tipo_contenido }}">
+        <svg *ngIf="contenidoAbierto.tipo_contenido === 'video'"      xmlns="http://www.w3.org/2000/svg" width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8" fill="white" stroke="none"/></svg>
+        <svg *ngIf="contenidoAbierto.tipo_contenido === 'articulo'"   xmlns="http://www.w3.org/2000/svg" width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        <svg *ngIf="contenidoAbierto.tipo_contenido === 'guia'"       xmlns="http://www.w3.org/2000/svg" width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+        <svg *ngIf="contenidoAbierto.tipo_contenido === 'tutorial'"   xmlns="http://www.w3.org/2000/svg" width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+        <svg *ngIf="contenidoAbierto.tipo_contenido === 'podcast'"    xmlns="http://www.w3.org/2000/svg" width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg>
+        <svg *ngIf="contenidoAbierto.tipo_contenido === 'infografia'" xmlns="http://www.w3.org/2000/svg" width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      </div>
+    </div>
+
+    <!-- Descripción -->
+    <div class="visor-descripcion">
+      <p>{{ contenidoAbierto.descripcion }}</p>
+    </div>
+
+    <!-- Enlace externo cuando no hay embed -->
+    <div class="visor-footer" *ngIf="contenidoAbierto.url_del_recurso && !embedUrl">
+      <a [href]="contenidoAbierto.url_del_recurso" target="_blank" rel="noopener noreferrer" class="btn-abrir">
+        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        Abrir en nueva pestaña
+      </a>
+    </div>
+    <!-- Enlace secundario cuando hay embed de YouTube -->
+    <div class="visor-footer" *ngIf="contenidoAbierto.url_del_recurso && embedUrl">
+      <a [href]="contenidoAbierto.url_del_recurso" target="_blank" rel="noopener noreferrer" class="btn-abrir btn-abrir-secondary">
+        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        Ver en YouTube
+      </a>
+    </div>
+
+  </div>
+</div>

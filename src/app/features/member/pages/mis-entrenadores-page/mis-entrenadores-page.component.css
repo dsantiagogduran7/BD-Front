@@ -1,0 +1,108 @@
+.page-header {
+  display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;
+}
+.page-header h1 { font-size: 24px; font-weight: 700; color: #1a1a1a; margin: 0; }
+.header-left { display: flex; align-items: center; gap: 12px; }
+.total-badge {
+  background: #e8f5e9; color: #1b5e20;
+  padding: 3px 10px; border-radius: 20px; font-size: 13px; font-weight: 600;
+}
+
+/* ── Filtros ── */
+.filtros-bar { display: flex; gap: 12px; margin-bottom: 20px; }
+.search-wrapper { position: relative; flex: 1; min-width: 220px; }
+.search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); pointer-events: none; }
+.search-input {
+  width: 100%; padding: 9px 12px 9px 36px;
+  border: 1px solid #ddd; border-radius: 8px; font-size: 14px; box-sizing: border-box; outline: none;
+}
+.search-input:focus { border-color: #1b5e20; }
+
+/* ── Tabla ── */
+.table-wrapper { background: white; border-radius: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); overflow: hidden; }
+.data-table { width: 100%; border-collapse: collapse; }
+.data-table thead tr { background: #f8f9fa; border-bottom: 2px solid #e9ecef; }
+.data-table th {
+  padding: 13px 16px; text-align: left; font-size: 11px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.5px; color: #6c757d;
+}
+.table-row { border-bottom: 1px solid #f0f0f0; transition: background 0.15s; }
+.table-row:hover { background: #f8fdf8; }
+.data-table td { padding: 14px 16px; font-size: 14px; color: #333; vertical-align: middle; }
+.empty-row { text-align: center; color: #999; padding: 40px !important; }
+
+.member-cell { display: flex; align-items: center; gap: 10px; }
+.avatar {
+  width: 36px; height: 36px; background: #1565c0; color: white;
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 700; flex-shrink: 0;
+}
+.member-info { display: flex; flex-direction: column; }
+.member-name { font-weight: 600; font-size: 14px; }
+.member-sub { font-size: 12px; color: #888; font-family: monospace; }
+
+/* ── Badges ── */
+.badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+.badge-tipo { background: #e3f2fd; color: #1565c0; }
+.badge-si { background: #e8f5e9; color: #1b5e20; }
+.badge-no { background: #f5f5f5; color: #888; }
+
+.badge-exigencia-bajo     { background: #e8f5e9; color: #1b5e20; }
+.badge-exigencia-moderado { background: #fff8e1; color: #f57f17; }
+.badge-exigencia-medio    { background: #fff3e0; color: #e65100; }
+.badge-exigencia-alto     { background: #fbe9e7; color: #bf360c; }
+.badge-exigencia-extremo  { background: #ffebee; color: #b71c1c; }
+
+/* ── Botones ── */
+.action-group { display: flex; gap: 6px; align-items: center; }
+.btn-icon {
+  background: none; border: 1px solid #ddd; border-radius: 6px;
+  padding: 5px 8px; cursor: pointer; transition: all 0.15s;
+}
+.btn-icon:hover { background: #f0f0f0; }
+.btn-sm { padding: 6px 14px; border-radius: 7px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; transition: all 0.2s; }
+.btn-danger { background: #ffebee; color: #c62828; border: 1px solid #ffcdd2; border-radius: 7px; padding: 6px 14px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+.btn-danger:hover { background: #ffcdd2; }
+.btn-danger-full { background: #c62828; color: white; border: none; border-radius: 8px; padding: 9px 20px; font-size: 14px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+.btn-danger-full:hover:not(:disabled) { background: #b71c1c; }
+.btn-danger-full:disabled { opacity: 0.6; cursor: not-allowed; }
+.btn-secondary { padding: 9px 20px; background: white; color: #444; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; cursor: pointer; }
+.btn-secondary:hover:not(:disabled) { background: #f5f5f5; }
+.btn-secondary:disabled { opacity: 0.6; cursor: not-allowed; }
+.btn-close { background: none; border: none; font-size: 18px; cursor: pointer; color: #888; }
+.btn-close:hover { color: #333; }
+
+/* ── Modal ── */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
+.modal { background: white; border-radius: 14px; width: 100%; max-width: 680px; max-height: 88vh; display: flex; flex-direction: column; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
+.modal-sm { max-width: 480px; }
+.modal-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 24px 16px; border-bottom: 1px solid #f0f0f0; }
+.modal-header h2 { margin: 0; font-size: 18px; font-weight: 700; color: #1a1a1a; }
+.modal-body { padding: 20px 24px; overflow-y: auto; flex: 1; }
+.modal-footer { display: flex; justify-content: flex-end; gap: 10px; padding: 16px 24px; border-top: 1px solid #f0f0f0; }
+
+/* ── Formulario ── */
+.form-section { margin-bottom: 22px; }
+.section-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #1565c0; margin: 0 0 14px; padding-bottom: 6px; border-bottom: 2px solid #e3f2fd; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.form-group { display: flex; flex-direction: column; gap: 5px; }
+.form-group.full-span { grid-column: 1 / -1; }
+.form-group label { font-size: 11px; font-weight: 600; color: #555; text-transform: uppercase; }
+.form-group input { padding: 9px 12px; border: 1px solid #ddd; border-radius: 7px; font-size: 14px; outline: none; font-family: inherit; }
+.form-group input:disabled { background: #f9f9f9; color: #333; border-color: #eee; cursor: default; }
+
+/* ── Panel de confirmación ── */
+.confirm-panel {
+  background: #fff8e1; border: 1px solid #ffe082;
+  border-radius: 10px; padding: 20px; margin-bottom: 4px;
+}
+.confirm-icon { color: #f57f17; margin-bottom: 12px; }
+.confirm-title { font-size: 15px; font-weight: 600; color: #1a1a1a; margin: 0 0 8px; }
+.confirm-sub { font-size: 13px; color: #555; margin: 0 0 10px; }
+.confirm-lista {
+  margin: 0; padding-left: 20px;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.confirm-lista li { font-size: 13px; color: #333; line-height: 1.5; }
+
+.error-validacion { color: #c62828; font-size: 13px; padding: 8px 0 0; font-weight: 500; }

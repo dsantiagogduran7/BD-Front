@@ -1,0 +1,80 @@
+<div class="page-header">
+  <div class="header-left">
+    <h1>Mi Perfil</h1>
+  </div>
+</div>
+
+<div class="perfil-card" *ngIf="trainer">
+  <div class="perfil-avatar">{{ session.iniciales() }}</div>
+  <div class="perfil-info">
+    <span class="perfil-nombre">{{ session.nombreCompleto() }}</span>
+    <span class="perfil-rol">{{ session.rol() }}</span>
+    <span class="perfil-correo">{{ trainer.correo }}</span>
+  </div>
+  <div class="perfil-cedula">
+    <span class="cedula-label">Cédula</span>
+    <span class="cedula-valor">{{ trainer.cedula }}</span>
+  </div>
+</div>
+
+<div class="section-card" *ngIf="trainer">
+  <h3 class="section-title">Datos Personales</h3>
+  <div class="info-grid">
+    <div class="info-field">
+      <span class="info-label">Primer Nombre</span>
+      <span class="info-valor">{{ trainer.primer_nombre }}</span>
+    </div>
+    <div class="info-field">
+      <span class="info-label">Segundo Nombre</span>
+      <span class="info-valor">{{ trainer.segundo_nombre || '—' }}</span>
+    </div>
+    <div class="info-field">
+      <span class="info-label">Primer Apellido</span>
+      <span class="info-valor">{{ trainer.primer_apellido }}</span>
+    </div>
+    <div class="info-field">
+      <span class="info-label">Segundo Apellido</span>
+      <span class="info-valor">{{ trainer.segundo_apellido || '—' }}</span>
+    </div>
+    <div class="info-field">
+      <span class="info-label">Fecha de Nacimiento</span>
+      <span class="info-valor">{{ trainer.fecha_nacimiento }} ({{ getEdad(trainer.fecha_nacimiento) }} años)</span>
+    </div>
+    <div class="info-field">
+      <span class="info-label">Teléfono</span>
+      <span class="info-valor">{{ trainer.telefono }}</span>
+    </div>
+    <div class="info-field full-span">
+      <span class="info-label">Correo Electrónico</span>
+      <span class="info-valor">{{ trainer.correo }}</span>
+    </div>
+  </div>
+</div>
+
+<div class="section-card" *ngIf="trainer">
+  <h3 class="section-title">Perfil Profesional</h3>
+  <div class="info-grid">
+    <div class="info-field">
+      <span class="info-label">Tipo de Entrenamiento</span>
+      <span class="badge tipo-{{ trainer.tipo_entrenamiento }}">{{ labelTipoEntrenamiento(trainer.tipo_entrenamiento) }}</span>
+    </div>
+    <div class="info-field">
+      <span class="info-label">Nivel de Exigencia</span>
+      <span class="badge nivel-{{ trainer.nivel_exigencia }}">{{ labelNivelExigencia(trainer.nivel_exigencia) }}</span>
+    </div>
+    <div class="info-field">
+      <span class="info-label">Tiempo de Experiencia</span>
+      <span class="info-valor">{{ trainer.tiempo_experiencia }} años</span>
+    </div>
+    <div class="info-field">
+      <span class="info-label">Ingreso al Sistema</span>
+      <span class="info-valor">{{ trainer.fecha_ingreso_sis }}</span>
+    </div>
+    <div class="info-field full-span" *ngIf="trainer.deportes && trainer.deportes.length > 0">
+      <span class="info-label">Deportes que Imparte</span>
+      <div class="deportes-list">
+        <span class="badge deporte-badge" *ngFor="let d of trainer.deportes">{{ d.nombre }}</span>
+      </div>
+    </div>
+  </div>
+</div>

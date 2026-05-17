@@ -10,6 +10,14 @@ export class MantenimientoApiService {
 
   constructor(private http: HttpClient) {}
 
+  listarTodos(): Observable<any[]> {
+    return this.http.get<any[]>(this.base);
+  }
+
+  listarPorOperador(cedula: string): Observable<any[]> {
+    return this.http.get<any[]>(`${this.base}/operador/${cedula}`);
+  }
+
   listarPorMaquina(codigoSerie: number): Observable<any[]> {
     return this.http.get<any[]>(`${this.base}/maquina/${codigoSerie}`);
   }

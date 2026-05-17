@@ -1,1 +1,141 @@
-<p>clases-page works!</p>
+<!-- ══════ ALERTAS ═══════════════════════════════════════════════════════════ -->
+<div class="alert alert-ok"    *ngIf="mensajeOk">    ✓ {{ mensajeOk }}</div>
+<div class="alert alert-error" *ngIf="mensajeError"> ✕ {{ mensajeError }}</div>
+
+<!-- ══════ ESTADO CARGA ═══════════════════════════════════════════════════════ -->
+<div *ngIf="cargando" class="estado-cargando">
+  <div class="spinner"></div>
+  <p>Cargando clases...</p>
+</div>
+<div *ngIf="error && !cargando" class="estado-error">{{ error }}</div>
+
+<ng-container *ngIf="!cargando && !error">
+
+  <!-- ════════════════════════════════════════════════════════════════════════
+       SECCIÓN 1 — MIS CLASES
+  ═════════════════════════════════════════════════════════════════════════ -->
+  <div class="section-card">
+    <div class="section-header">
+      <div class="section-title-row">
+        <h2>Mis Clases</h2>
+        <span class="count-badge">{{ misClasesFiltradas.length }}</span>
+      </div>
+      <select class="filtro-select" [(ngModel)]="filtroEstadoMis">
+        <option value="">Todos los estados</option>
+        <option value="programada">Programada</option>
+        <option value="cancelada">Cancelada</option>
+        <option value="finalizada">Finalizada</option>
+      </select>
+    </div>
+
+    <div class="table-wrapper">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Deporte</th>
+            <th>Entrenador</th>
+            <th>Fecha</th>
+            <th>Horario</th>
+            <th>Sala</th>
+            <th>Estado</th>
+            <th>Acción</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let c of misClasesFiltradas" class="table-row">
+            <td>
+              <div class="cell-deporte">
+                <div class="dep-avatar">{{ (c.deporte?.nombre ?? 'C')[0] }}</div>
+                <span>{{ c.deporte?.nombre ?? '—' }}</span>
+              </div>
+            </td>
+            <td>{{ c.nombre_entrenador }}</td>
+            <td>{{ formatFecha(c.fecha) }}</td>
+            <td>{{ formatHorario(c) }}</td>
+            <td>Sala {{ c.sala?.id_sala ?? '—' }}</td>
+            <td>
+              <span class="badge estado-{{ c.estado }}">{{ c.estado }}</span>
+            </td>
+            <td>
+              <button
+                *ngIf="c.estado === 'programada'"
+                class="btn-desinscribir"
+                (click)="desinscribir(c)">
+                Desinscribirse
+              </button>
+              <span *ngIf="c.estado !== 'programada'" class="text-muted">—</span>
+            </td>
+          </tr>
+          <tr *ngIf="misClasesFiltradas.length === 0">
+            <td colspan="7" class="empty-row">
+              {{ filtroEstadoMis ? 'No hay clases con ese estado.' : 'Aún no estás inscrito en ninguna clase.' }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════════════════
+       SECCIÓN 2 — CLASES DISPONIBLES
+  ═════════════════════════════════════════════════════════════════════════ -->
+  <div class="section-card">
+    <div class="section-header">
+      <div class="section-title-row">
+        <h2>Clases Disponibles</h2>
+        <span class="count-badge">{{ clasesDisponibles.length }}</span>
+      </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="filtros-disponibles">
+      <select class="filtro-select" [(ngModel)]="filtroDeporte">
+        <option [ngValue]="0">Todos los deportes</option>
+        <option *ngFor="let d of deportes" [ngValue]="d.id_deporte">{{ d.nombre }}</option>
+      </select>
+      <div class="search-wrapper">
+        <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" class="search-input" placeholder="Buscar por entrenador..."
+               [(ngModel)]="busquedaEntrenador" />
+      </div>
+    </div>
+
+    <div class="table-wrapper">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Deporte</th>
+            <th>Entrenador</th>
+            <th>Fecha</th>
+            <th>Horario</th>
+            <th>Sala</th>
+            <th>Cupos</th>
+            <th>Acción</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let c of clasesDisponibles" class="table-row">
+            <td>
+              <div class="cell-deporte">
+                <div class="dep-avatar">{{ (c.deporte?.nombre ?? 'C')[0] }}</div>
+                <span>{{ c.deporte?.nombre ?? '—' }}</span>
+              </div>
+            </td>
+            <td>{{ c.nombre_entrenador }}</td>
+            <td>{{ formatFecha(c.fecha) }}</td>
+            <td>{{ formatHorario(c) }}</td>
+            <td>Sala {{ c.sala?.id_sala ?? '—' }}</td>
+            <td>{{ c.cupos }}</td>
+            <td>
+              <button class="btn-inscribir" (click)="inscribir(c)">Inscribirse</button>
+            </td>
+          </tr>
+          <tr *ngIf="clasesDisponibles.length === 0">
+            <td colspan="7" class="empty-row">No hay clases disponibles con esos filtros.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</ng-container>

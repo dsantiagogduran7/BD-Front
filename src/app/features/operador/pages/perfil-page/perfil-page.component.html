@@ -1,1 +1,70 @@
-<p>perfil-page works!</p>
+<div class="page-header">
+  <div class="header-left">
+    <h1>Mi Perfil</h1>
+  </div>
+</div>
+
+<div class="perfil-card" *ngIf="op">
+  <div class="perfil-avatar">{{ session.iniciales() }}</div>
+  <div class="perfil-info">
+    <span class="perfil-nombre">{{ session.nombreCompleto() }}</span>
+    <span class="perfil-rol">{{ session.rol() }}</span>
+    <span class="perfil-correo">{{ op.correo }}</span>
+  </div>
+  <div class="perfil-cedula">
+    <span class="cedula-label">Cédula</span>
+    <span class="cedula-valor">{{ op.cedula }}</span>
+  </div>
+</div>
+
+<div class="section-card" *ngIf="op">
+  <h3 class="section-title">Datos Personales</h3>
+  <div class="info-grid">
+    <div class="info-field">
+      <span class="info-label">Primer Nombre</span>
+      <span class="info-valor">{{ op.primer_nombre }}</span>
+    </div>
+    <div class="info-field">
+      <span class="info-label">Segundo Nombre</span>
+      <span class="info-valor">{{ op.segundo_nombre || '—' }}</span>
+    </div>
+    <div class="info-field">
+      <span class="info-label">Primer Apellido</span>
+      <span class="info-valor">{{ op.primer_apellido }}</span>
+    </div>
+    <div class="info-field">
+      <span class="info-label">Segundo Apellido</span>
+      <span class="info-valor">{{ op.segundo_apellido || '—' }}</span>
+    </div>
+    <div class="info-field">
+      <span class="info-label">Fecha de Nacimiento</span>
+      <span class="info-valor">{{ op.fecha_nacimiento }} ({{ getEdad(op.fecha_nacimiento) }} años)</span>
+    </div>
+    <div class="info-field">
+      <span class="info-label">Teléfono</span>
+      <span class="info-valor">{{ op.telefono }}</span>
+    </div>
+    <div class="info-field full-span">
+      <span class="info-label">Correo electrónico</span>
+      <span class="info-valor">{{ op.correo }}</span>
+    </div>
+  </div>
+</div>
+
+<div class="section-card" *ngIf="op">
+  <h3 class="section-title">Perfil Técnico</h3>
+  <div class="info-grid">
+    <div class="info-field">
+      <span class="info-label">Nivel Técnico</span>
+      <span class="badge nivel-{{ op.nivel_tecnico }}">{{ labelNivel(op.nivel_tecnico) }}</span>
+    </div>
+    <div class="info-field">
+      <span class="info-label">Especialidad</span>
+      <span class="info-valor">{{ labelEspecialidad(op.especialidad) }}</span>
+    </div>
+    <div class="info-field">
+      <span class="info-label">Tipo de Operador</span>
+      <span class="badge tipo-{{ op.tipo_operador }}">{{ labelTipoOperador(op.tipo_operador) }}</span>
+    </div>
+  </div>
+</div>

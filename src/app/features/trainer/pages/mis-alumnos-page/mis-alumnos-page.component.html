@@ -1,1 +1,153 @@
-<p>mis-alumnos-page works!</p>
+<div class="page-header">
+  <div class="header-left">
+    <h1>Mis Miembros</h1>
+    <span class="total-badge">{{ itemsFiltrados.length }} miembros</span>
+  </div>
+</div>
+
+<!-- Búsqueda -->
+<div class="filtros-bar">
+  <div class="search-wrapper">
+    <span class="search-icon"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+    <input type="text" placeholder="Buscar por nombre del miembro..."
+           [(ngModel)]="busqueda" class="search-input" />
+  </div>
+</div>
+
+<!-- Estado -->
+<div *ngIf="cargando" class="empty-row">Cargando miembros...</div>
+<div *ngIf="error" class="empty-row" style="color:#c62828">{{ error }}</div>
+
+<!-- Tabla -->
+<div class="table-wrapper" *ngIf="!cargando && !error">
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Miembro</th>
+        <th>Descripción del Plan</th>
+        <th>Ejercicios</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let p of itemsPaginados" class="table-row">
+        <td>
+          <div class="member-cell">
+            <div class="avatar">{{ p.nombre_miembro[0] }}</div>
+            <div class="member-info">
+              <span class="member-name">{{ p.nombre_miembro }}</span>
+              <span class="member-sub">{{ p.cedula_miembro }}</span>
+            </div>
+          </div>
+        </td>
+        <td class="desc-cell">{{ p.plan?.descripcion ?? '—' }}</td>
+        <td>
+          <span class="badge exp-count">{{ (p.plan?.ejercicios ?? []).length }} ejercicios</span>
+        </td>
+        <td>
+          <div class="action-group">
+            <button class="btn-icon" title="Ver detalle del miembro" (click)="abrirDetalle(p)"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+            <button class="btn-sm btn-primary" *ngIf="!p.plan" (click)="abrirCrear(p)">Dar Plan</button>
+          </div>
+        </td>
+      </tr>
+      <tr *ngIf="itemsFiltrados.length === 0">
+        <td colspan="4" class="empty-row">No se encontraron miembros.</td>
+      </tr>
+    </tbody>
+  </table>
+  <app-paginacion [totalPaginas]="totalPaginas" [paginaActual]="paginaActual" (cambiarPagina)="cambiarPagina($event)"></app-paginacion>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- MODAL: Ver detalle del miembro                 -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="modal-overlay" *ngIf="mostrarDetalle" (click)="cerrarDetalle()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Detalle del Miembro</h2>
+      <button class="btn-close" (click)="cerrarDetalle()">&#x2715;</button>
+    </div>
+    <div class="modal-body" *ngIf="itemViendo">
+      <ng-container *ngIf="getMiembro(itemViendo.cedula_miembro) as m; else soloNombre">
+        <div class="form-section">
+          <h3 class="section-title">Datos Personales</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Cédula</label>
+              <input type="text" [value]="m.cedula" disabled />
+            </div>
+            <div class="form-group">
+              <label>Nombre Completo</label>
+              <input type="text" [value]="m.primer_nombre + ' ' + m.primer_apellido" disabled />
+            </div>
+            <div class="form-group">
+              <label>Correo</label>
+              <input type="text" [value]="m.correo" disabled />
+            </div>
+            <div class="form-group">
+              <label>Teléfono</label>
+              <input type="text" [value]="m.telefono" disabled />
+            </div>
+            <div class="form-group">
+              <label>Fecha de Nacimiento</label>
+              <input type="text" [value]="m.fecha_nacimiento + ' (' + getEdad(m.fecha_nacimiento) + ' años)'" disabled />
+            </div>
+            <div class="form-group">
+              <label>Nivel de Experiencia</label>
+              <input type="text" [value]="m.nivel_experiencia ?? '—'" disabled />
+            </div>
+            <div class="form-group">
+              <label>Altura (cm)</label>
+              <input type="text" [value]="m.altura ?? '—'" disabled />
+            </div>
+            <div class="form-group">
+              <label>Peso actual (kg)</label>
+              <input type="text" [value]="m.peso_actual ?? '—'" disabled />
+            </div>
+          </div>
+        </div>
+        <div class="form-section">
+          <h3 class="section-title">Membresía</h3>
+          <div class="form-group">
+            <label>Estado</label>
+            <input type="text" [value]="m.membresia_estado ?? 'Sin membresía'" disabled />
+          </div>
+        </div>
+      </ng-container>
+      <ng-template #soloNombre>
+        <p>{{ itemViendo.nombre_miembro }}</p>
+      </ng-template>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="cerrarDetalle()">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- MODAL: Asignar plan a nuevo miembro            -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="modal-overlay" *ngIf="mostrarCrear" (click)="cerrarCrear()">
+  <div class="modal modal-sm" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Dar Plan a {{ itemParaPlan?.nombre_miembro }}</h2>
+      <button class="btn-close" (click)="cerrarCrear()">&#x2715;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-section">
+        <div class="form-group">
+          <label>Descripción del plan <span class="req">*</span></label>
+          <textarea [(ngModel)]="formCrear.descripcion" rows="3"
+                    placeholder="Ej: Plan de fuerza enfocado en tren superior..."></textarea>
+        </div>
+      </div>
+      <div class="error-validacion" *ngIf="errorCrear">{{ errorCrear }}</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="cerrarCrear()">Cancelar</button>
+      <button class="btn-primary" [disabled]="guardandoCrear" (click)="guardarCrear()">Crear Plan</button>
+    </div>
+  </div>
+</div>
+

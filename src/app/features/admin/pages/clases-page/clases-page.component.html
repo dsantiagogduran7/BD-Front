@@ -11,7 +11,7 @@
 <!-- FILTROS -->
 <div class="filtros-bar">
   <div class="search-wrapper">
-    <span class="search-icon">&#128269;</span>
+    <span class="search-icon"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
     <input
       type="text"
       placeholder="Buscar por deporte o entrenador..."
@@ -71,7 +71,7 @@
           <span class="badge exig-{{ c.estado }}">{{ c.estado }}</span>
         </td>
         <td>
-          <button class="btn-icon" (click)="abrirDetalle(c)">&#128065;</button>
+          <button class="btn-icon" (click)="abrirDetalle(c)"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
         </td>
       </tr>
       <tr *ngIf="clasesFiltradas.length === 0">
@@ -149,6 +149,30 @@
           <input type="text" [value]="claseSeleccionada.comentario" disabled />
         </div>
       </div>
+
+      <!-- ── Miembros Inscritos ───────────────────────── -->
+      <div class="form-section">
+        <h3 class="section-title">
+          Miembros Inscritos
+          <span class="inscritos-count">{{ inscritosClase.length }}</span>
+        </h3>
+        <div *ngIf="cargandoInscritos" class="empty-row">Cargando...</div>
+        <div *ngIf="!cargandoInscritos && inscritosClase.length === 0" class="empty-row">
+          No hay miembros inscritos en esta clase.
+        </div>
+        <div class="inscritos-list" *ngIf="!cargandoInscritos && inscritosClase.length > 0">
+          <div class="inscrito-row" *ngFor="let i of inscritosClase">
+            <div class="avatar avatar-inscrito">{{ i.nombre_miembro[0] }}</div>
+            <div class="inscrito-info">
+              <span class="inscrito-nombre">{{ i.nombre_miembro }}</span>
+              <span class="inscrito-cedula">CC {{ i.miembro_cedula }}</span>
+            </div>
+            <button class="btn-icon" (click)="verMiembro(i.miembro_cedula)" title="Ver detalle">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div class="modal-footer">
@@ -161,6 +185,41 @@
       >
         Eliminar
       </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL DETALLE MIEMBRO ═══════════════════════════════════════════════ -->
+<div class="modal-overlay modal-top" *ngIf="mostrarMiembroDetalle" (click)="cerrarMiembroDetalle()">
+  <div class="modal modal-miembro" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Perfil del Miembro</h2>
+      <button class="btn-close" (click)="cerrarMiembroDetalle()">&#x2715;</button>
+    </div>
+    <div class="modal-body" *ngIf="miembroDetalle">
+      <div class="miembro-perfil-header">
+        <div class="miembro-avatar-lg">{{ miembroDetalle.primer_nombre?.[0] }}{{ miembroDetalle.primer_apellido?.[0] }}</div>
+        <div>
+          <p class="miembro-nombre-lg">{{ nombreCompleto(miembroDetalle) }}</p>
+          <p class="miembro-cedula-lg">CC {{ miembroDetalle.cedula }}</p>
+        </div>
+      </div>
+      <div class="form-section">
+        <h3 class="section-title">Datos Personales</h3>
+        <div class="form-grid">
+          <div class="form-group"><label>Correo</label><input type="text" [value]="miembroDetalle.correo" disabled /></div>
+          <div class="form-group"><label>Teléfono</label><input type="text" [value]="miembroDetalle.telefono" disabled /></div>
+          <div class="form-group"><label>Fecha nacimiento</label><input type="text" [value]="miembroDetalle.fecha_nacimiento" disabled /></div>
+          <div class="form-group"><label>Altura (cm)</label><input type="text" [value]="miembroDetalle.altura" disabled /></div>
+          <div class="form-group"><label>Peso (kg)</label><input type="text" [value]="miembroDetalle.peso_actual" disabled /></div>
+          <div class="form-group"><label>Nivel Experiencia</label><input type="text" [value]="miembroDetalle.nivel_experiencia" disabled /></div>
+          <div class="form-group"><label>Estado Membresía</label><input type="text" [value]="miembroDetalle.membresia_estado ?? '—'" disabled /></div>
+          <div class="form-group"><label>Plan</label><input type="text" [value]="miembroDetalle.plan_nombre ?? '—'" disabled /></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="cerrarMiembroDetalle()">Cerrar</button>
     </div>
   </div>
 </div>
@@ -262,6 +321,8 @@
         </div>
       </div>
     </div>
+
+    <div class="error-validacion" *ngIf="errorValidacion">{{ errorValidacion }}</div>
 
     <div class="modal-footer">
       <button class="btn-secondary" (click)="cerrarModal()">Cancelar</button>

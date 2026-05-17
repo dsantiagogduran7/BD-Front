@@ -1,1 +1,167 @@
-<p>entrenadores-page works!</p>
+<div class="page-header">
+  <div class="header-left">
+    <h1>Buscar Entrenadores</h1>
+    <span class="total-badge">{{ entrenadorFiltrados.length }} encontrados</span>
+  </div>
+</div>
+
+<!-- Filtros -->
+<div class="filtros-bar">
+  <div class="search-wrapper">
+    <span class="search-icon">
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    </span>
+    <input type="text" placeholder="Buscar por nombre..." [(ngModel)]="busqueda"
+           (ngModelChange)="onFiltroChange()" class="search-input" />
+  </div>
+
+  <select [(ngModel)]="tipoFiltro" (ngModelChange)="onFiltroChange()" class="filtro-select">
+    <option value="">Todos los tipos</option>
+    <option *ngFor="let t of tiposEntrenamiento" [value]="t.value">{{ t.label }}</option>
+  </select>
+
+  <select [(ngModel)]="nivelFiltro" (ngModelChange)="onFiltroChange()" class="filtro-select">
+    <option value="">Todos los niveles</option>
+    <option *ngFor="let n of nivelesExigencia" [value]="n.value">{{ n.label }}</option>
+  </select>
+
+  <button class="btn-limpiar" (click)="limpiarFiltros()"
+          *ngIf="busqueda || tipoFiltro || nivelFiltro">
+    Limpiar filtros
+  </button>
+</div>
+
+<!-- Estado -->
+<div *ngIf="cargando" class="estado-centro">Cargando entrenadores...</div>
+<div *ngIf="error"    class="estado-centro estado-error">{{ error }}</div>
+
+<!-- Cards grid -->
+<div class="cards-grid" *ngIf="!cargando && !error">
+
+  <div *ngIf="entrenadorFiltrados.length === 0" class="estado-centro">
+    No se encontraron entrenadores con esos filtros.
+  </div>
+
+  <div class="card" *ngFor="let e of entrenadorPaginados">
+    <div class="card-top">
+      <div class="card-avatar">{{ iniciales(e) }}</div>
+      <div class="card-info">
+        <span class="card-nombre">{{ nombreCompleto(e) }}</span>
+        <span class="card-cedula">{{ e.cedula }}</span>
+      </div>
+      <span class="badge-vinculado" *ngIf="vinculados.has(e.cedula)">Vinculado</span>
+    </div>
+
+    <div class="card-badges">
+      <span class="badge badge-tipo">{{ labelTipo(e.tipo_entrenamiento) }}</span>
+      <span class="badge" [ngClass]="'badge-exigencia-' + e.nivel_exigencia">
+        {{ labelExigencia(e.nivel_exigencia) }}
+      </span>
+    </div>
+
+    <div class="card-meta">
+      <div class="meta-item">
+        <span class="meta-label">Experiencia</span>
+        <span class="meta-value">{{ e.tiempo_experiencia }} años</span>
+      </div>
+      <div class="meta-item" *ngIf="e.deportes?.length">
+        <span class="meta-label">Deportes</span>
+        <span class="meta-value">{{ deportesLabel(e.deportes) }}</span>
+      </div>
+    </div>
+
+    <div class="card-actions">
+      <button class="btn-detalle" (click)="abrirDetalle(e)">Ver detalle</button>
+      <button class="btn-vincular"
+              *ngIf="!vinculados.has(e.cedula)"
+              [disabled]="vinculando === e.cedula"
+              (click)="vincular(e)">
+        {{ vinculando === e.cedula ? 'Vinculando...' : 'Vincular' }}
+      </button>
+      <span class="ya-vinculado" *ngIf="vinculados.has(e.cedula)">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        Ya eres pupilo
+      </span>
+    </div>
+  </div>
+
+</div>
+
+<app-paginacion *ngIf="!cargando && !error && entrenadorFiltrados.length > 0"
+  [totalPaginas]="totalPaginas" [paginaActual]="paginaActual"
+  (cambiarPagina)="cambiarPagina($event)">
+</app-paginacion>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- MODAL: Ver detalle del entrenador              -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="modal-overlay" *ngIf="mostrarDetalle" (click)="cerrarDetalle()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>{{ nombreCompleto(entrenadorViendo) }}</h2>
+      <button class="btn-close" (click)="cerrarDetalle()">&#x2715;</button>
+    </div>
+
+    <div class="modal-body" *ngIf="entrenadorViendo">
+
+      <div class="form-section">
+        <h3 class="section-title">Datos Personales</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Cédula</label>
+            <input type="text" [value]="entrenadorViendo.cedula" disabled />
+          </div>
+          <div class="form-group">
+            <label>Correo</label>
+            <input type="text" [value]="entrenadorViendo.correo ?? '—'" disabled />
+          </div>
+          <div class="form-group">
+            <label>Teléfono</label>
+            <input type="text" [value]="entrenadorViendo.telefono ?? '—'" disabled />
+          </div>
+          <div class="form-group">
+            <label>Edad</label>
+            <input type="text" [value]="getEdad(entrenadorViendo.fecha_nacimiento) + ' años'" disabled />
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h3 class="section-title">Perfil de Entrenamiento</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Especialidad</label>
+            <input type="text" [value]="labelTipo(entrenadorViendo.tipo_entrenamiento)" disabled />
+          </div>
+          <div class="form-group">
+            <label>Nivel de exigencia</label>
+            <input type="text" [value]="labelExigencia(entrenadorViendo.nivel_exigencia)" disabled />
+          </div>
+          <div class="form-group">
+            <label>Años de experiencia</label>
+            <input type="text" [value]="entrenadorViendo.tiempo_experiencia + ' años'" disabled />
+          </div>
+          <div class="form-group" *ngIf="entrenadorViendo.deportes?.length">
+            <label>Deportes</label>
+            <input type="text" [value]="deportesLabel(entrenadorViendo.deportes)" disabled />
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="cerrarDetalle()">Cerrar</button>
+      <button class="btn-vincular-modal"
+              *ngIf="entrenadorViendo && !vinculados.has(entrenadorViendo.cedula)"
+              [disabled]="vinculando === entrenadorViendo.cedula"
+              (click)="vincular(entrenadorViendo)">
+        {{ vinculando === entrenadorViendo.cedula ? 'Vinculando...' : 'Vincular' }}
+      </button>
+      <span class="ya-vinculado" *ngIf="entrenadorViendo && vinculados.has(entrenadorViendo.cedula)">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        Ya eres pupilo
+      </span>
+    </div>
+  </div>
+</div>

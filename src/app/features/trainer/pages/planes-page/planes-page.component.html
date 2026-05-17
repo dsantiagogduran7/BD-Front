@@ -1,0 +1,151 @@
+<div class="page-header">
+  <div class="header-left">
+    <h1>Planes de Entrenamiento</h1>
+    <span class="total-badge">{{ planesFiltrados.length }} planes</span>
+  </div>
+</div>
+
+<div class="filtros-bar">
+  <div class="search-wrapper">
+    <span class="search-icon"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+    <input type="text" placeholder="Buscar por nombre del miembro..."
+           [(ngModel)]="busqueda" class="search-input" />
+  </div>
+</div>
+
+<div *ngIf="cargando" class="empty-row">Cargando planes...</div>
+<div *ngIf="error" class="empty-row" style="color:#c62828">{{ error }}</div>
+
+<div class="table-wrapper" *ngIf="!cargando && !error">
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Miembro</th>
+        <th>Descripción</th>
+        <th>Ejercicios</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let p of planesPaginados" class="table-row">
+        <td>
+          <div class="member-cell">
+            <div class="avatar">{{ p.nombre_miembro[0] }}</div>
+            <div class="member-info">
+              <span class="member-name">{{ p.nombre_miembro }}</span>
+              <span class="member-sub">{{ p.cedula_miembro }}</span>
+            </div>
+          </div>
+        </td>
+        <td class="desc-cell">{{ p.descripcion }}</td>
+        <td>
+          <span class="badge exp-count">{{ (p.ejercicios ?? []).length }} ejercicios</span>
+        </td>
+        <td>
+          <button class="btn-sm btn-primary" (click)="abrirGestionar(p)">Editar Plan</button>
+        </td>
+      </tr>
+      <tr *ngIf="planesFiltrados.length === 0">
+        <td colspan="4" class="empty-row">No hay planes de entrenamiento asignados.</td>
+      </tr>
+    </tbody>
+  </table>
+  <app-paginacion [totalPaginas]="totalPaginas" [paginaActual]="paginaActual" (cambiarPagina)="cambiarPagina($event)"></app-paginacion>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- MODAL: Gestionar plan                          -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="modal-overlay" *ngIf="mostrarGestionar" (click)="cerrarGestionar()">
+  <div class="modal modal-lg" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Plan de {{ planActivo?.nombre_miembro }}</h2>
+      <button class="btn-close" (click)="cerrarGestionar()">&#x2715;</button>
+    </div>
+
+    <div class="modal-body" *ngIf="planActivo">
+
+      <!-- Descripción -->
+      <div class="form-section">
+        <h3 class="section-title">Descripción</h3>
+        <div class="desc-row">
+          <textarea [(ngModel)]="descripcionEditable" rows="2" class="desc-textarea"></textarea>
+          <button class="btn-sm btn-secondary" (click)="guardarDescripcion()">Guardar</button>
+        </div>
+      </div>
+
+      <!-- Ejercicios -->
+      <div class="form-section">
+        <div class="ej-section-header">
+          <h3 class="section-title">Ejercicios</h3>
+          <button class="btn-sm btn-primary" (click)="abrirAddEj()" *ngIf="!mostrarAddEj">+ Agregar</button>
+        </div>
+
+        <div class="ej-list" *ngIf="ejerciciosActivos.length > 0; else sinEjercicios">
+          <div class="ej-item" *ngFor="let e of ejerciciosActivos">
+            <div class="ej-info">
+              <span class="ej-nombre">{{ e.nombre_ejerc }}</span>
+              <span class="ej-desc">{{ e.descripcion_ejerc }}</span>
+              <div class="ej-meta">
+                <span class="badge-reps">{{ e.reps_serie }} reps/serie</span>
+                <span class="badge-series">{{ e.num_series }} series</span>
+              </div>
+            </div>
+            <button class="btn-danger-icon" (click)="eliminarEjercicio(e.id_ejercicio)" title="Eliminar"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
+          </div>
+        </div>
+        <ng-template #sinEjercicios>
+          <p class="empty-ej">No hay ejercicios en este plan aún.</p>
+        </ng-template>
+
+        <!-- Formulario agregar ejercicio -->
+        <div class="add-ej-form" *ngIf="mostrarAddEj">
+          <div class="modo-toggle">
+            <button [class.active]="modoEj === 'nuevo'" (click)="modoEj = 'nuevo'; resetFormEj()">Nuevo ejercicio</button>
+            <button [class.active]="modoEj === 'catalogo'" (click)="modoEj = 'catalogo'; resetFormEj()">Del catálogo</button>
+          </div>
+
+          <div class="form-group" *ngIf="modoEj === 'catalogo'">
+            <label>Ejercicio del catálogo</label>
+            <select [(ngModel)]="ejercicioCatalogo" (ngModelChange)="onCatalogoChange()">
+              <option [ngValue]="null" disabled>Selecciona un ejercicio...</option>
+              <option *ngFor="let e of ejerciciosCatalogo" [ngValue]="e">
+                {{ e.nombre_ejerc }} ({{ e.reps_serie }}r × {{ e.num_series }}s)
+              </option>
+            </select>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Nombre <span class="req">*</span></label>
+              <input type="text" [(ngModel)]="formEj.nombre_ejerc" placeholder="Ej: Sentadilla" />
+            </div>
+            <div class="form-group">
+              <label>Descripción <span class="req">*</span></label>
+              <input type="text" [(ngModel)]="formEj.descripcion_ejerc" placeholder="Descripción del ejercicio" />
+            </div>
+            <div class="form-group">
+              <label>Reps por serie <span class="req">*</span></label>
+              <input type="number" [(ngModel)]="formEj.reps_serie" min="1" />
+            </div>
+            <div class="form-group">
+              <label>Número de series <span class="req">*</span></label>
+              <input type="number" [(ngModel)]="formEj.num_series" min="1" />
+            </div>
+          </div>
+
+          <div class="add-ej-actions">
+            <button class="btn-sm btn-secondary" (click)="mostrarAddEj = false; resetFormEj()">Cancelar</button>
+            <button class="btn-sm btn-primary" (click)="agregarEjercicio()">Agregar</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="error-validacion" *ngIf="errorGestionar">{{ errorGestionar }}</div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="cerrarGestionar()">Cerrar</button>
+    </div>
+  </div>
+</div>

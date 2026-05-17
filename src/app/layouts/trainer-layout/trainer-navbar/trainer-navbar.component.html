@@ -1,35 +1,13 @@
 <div class="navbar">
-
-  <div class="navbar-left">
-
-    <h1>
-      Panel Entrenador
-    </h1>
-
-  </div>
-
-  <div class="navbar-right">
-
-    <div class="trainer-profile">
-
-      <div class="avatar">
-        D
+  <h3>Panel Entrenador</h3>
+  <div class="user-info">
+    <div class="user-chip">
+      <div class="user-avatar">{{ session.iniciales() }}</div>
+      <div class="user-details">
+        <span class="user-name">{{ session.nombreCompleto() }}</span>
+        <span class="user-rol">{{ session.rol() }}</span>
       </div>
-
-      <div class="trainer-info">
-
-        <span class="trainer-name">
-          David Gómez
-        </span>
-
-        <span class="trainer-role">
-          Entrenador
-        </span>
-
-      </div>
-
     </div>
-
+    <button class="btn-logout" (click)="cerrarSesion()">Cerrar sesión</button>
   </div>
-
 </div>

@@ -47,3 +47,39 @@ small {
   margin-top: 4px;
   display: block;
 }
+
+/* ── Inscritos ── */
+.inscritos-count {
+  display: inline-block; background: #1b5e20; color: white;
+  padding: 1px 8px; border-radius: 12px; font-size: 12px;
+  font-weight: 700; margin-left: 8px;
+}
+.inscritos-list { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+.inscrito-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 14px; background: #f8f9f8;
+  border-radius: 8px; border: 1px solid #eee;
+}
+.avatar-inscrito { background: #388e3c; }
+.inscrito-info { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.inscrito-nombre { font-size: 14px; font-weight: 600; color: #1a1a1a; }
+.inscrito-cedula { font-size: 12px; color: #888; }
+
+/* ── Modal miembro (z-index superior) ── */
+.modal-top { z-index: 1010; }
+.modal-miembro { max-width: 580px; }
+
+.miembro-perfil-header {
+  display: flex; align-items: center; gap: 16px;
+  padding: 16px 0 20px; margin-bottom: 8px;
+  border-bottom: 1px solid #f0f0f0;
+}
+.miembro-avatar-lg {
+  width: 56px; height: 56px; border-radius: 50%;
+  background: #1b5e20; color: white;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; font-weight: 700; flex-shrink: 0;
+  letter-spacing: 1px;
+}
+.miembro-nombre-lg { font-size: 17px; font-weight: 700; color: #1a1a1a; margin: 0 0 2px; }
+.miembro-cedula-lg { font-size: 13px; color: #888; margin: 0; }

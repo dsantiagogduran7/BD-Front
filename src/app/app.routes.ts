@@ -20,9 +20,13 @@ import { ReportesPageComponent } from './features/admin/pages/reportes-page/repo
 import { ContenidosPageComponent } from './features/admin/pages/contenidos-page/contenidos-page.component';
 import { OperadoresPageComponent } from './features/admin/pages/operadores-page/operadores-page.component';
 import { DeportesPageComponent } from './features/admin/pages/deportes-page/deportes-page.component';
+import { AdminPerfilPageComponent } from './features/admin/pages/perfil-page/perfil-page.component';
 
 // TRAINER PAGES
 import { MisAlumnosPageComponent } from './features/trainer/pages/mis-alumnos-page/mis-alumnos-page.component';
+import { PlanesPageComponent } from './features/trainer/pages/planes-page/planes-page.component';
+import { TrainerClasesPageComponent } from './features/trainer/pages/clases-page/clases-page.component';
+import { TrainerPerfilPageComponent } from './features/trainer/pages/perfil-page/perfil-page.component';
 
 // MEMBER PAGES
 import { ClasesPageComponent as MemberClasesPage } from './features/member/pages/clases-page/clases-page.component';
@@ -60,6 +64,7 @@ export const routes: Routes = [
       { path: 'contenidos',   component: ContenidosPageComponent },
       { path: 'operadores',   component: OperadoresPageComponent },
       { path: 'deportes',     component: DeportesPageComponent },
+      { path: 'perfil',       component: AdminPerfilPageComponent },
     ]
   },
 
@@ -72,6 +77,9 @@ export const routes: Routes = [
     children: [
       { path: '', redirectTo: 'mis-alumnos', pathMatch: 'full' }, // ← AGREGADO
       { path: 'mis-alumnos', component: MisAlumnosPageComponent },
+      { path: 'planes',      component: PlanesPageComponent },
+      { path: 'clases',      component: TrainerClasesPageComponent },
+      { path: 'perfil',      component: TrainerPerfilPageComponent },
     ]
   },
 

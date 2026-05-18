@@ -1,23 +1,11 @@
+import { PlanDto } from './plan.dto';
+
 export interface MembresiaDto {
-
-  id_plan: number;
-
-  duracion:
-    | 'mensual'
-    | 'trimestral'
-    | 'semestral'
-    | 'anual';
-
-  precio: number;
-
-  estado:
-    | 'activa'
-    | 'inactiva'
-    | 'vencida'
-    | 'suspendida';
-
+  miembro_cedula: string;
+  nombre_miembro: string;
   fecha_inicio: string;
-
   fecha_fin: string;
-
+  estado: 'activa' | 'inactiva' | 'vencida' | 'suspendida';
+  plan: PlanDto;
+  pagos?: any[];
 }

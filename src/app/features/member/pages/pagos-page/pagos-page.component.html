@@ -1,1 +1,87 @@
-<p>pagos-page works!</p>
+<!-- ══════ CARGA / ERROR ══════════════════════════════════════════════════════ -->
+<div *ngIf="cargando" class="estado-cargando">
+  <div class="spinner"></div>
+  <p>Cargando pagos...</p>
+</div>
+<div *ngIf="error && !cargando" class="estado-error">{{ error }}</div>
+
+<ng-container *ngIf="!cargando && !error">
+
+  <div class="section-card">
+    <div class="section-header">
+      <div class="section-title-row">
+        <h2>Mis Pagos</h2>
+        <span class="count-badge">{{ pagosFiltrados.length }}</span>
+      </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="filtros">
+      <select class="filtro-select" [(ngModel)]="filtroMetodo">
+        <option value="">Todos los métodos</option>
+        <option value="efectivo">Efectivo</option>
+        <option value="tarjeta_credito">Tarjeta de crédito</option>
+        <option value="tarjeta_debito">Tarjeta de débito</option>
+        <option value="transferencia">Transferencia</option>
+      </select>
+
+      <select class="filtro-select" [(ngModel)]="filtroPlan">
+        <option value="">Todos los planes</option>
+        <option value="mensual">1 Mes</option>
+        <option value="trimestral">3 Meses</option>
+        <option value="semestral">6 Meses</option>
+        <option value="anual">12 Meses</option>
+      </select>
+    </div>
+
+    <!-- Tabla -->
+    <div class="table-wrapper">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>N.° Recibo</th>
+            <th>Fecha de pago</th>
+            <th>Plan</th>
+            <th>Vigencia</th>
+            <th>Método</th>
+            <th>Estado</th>
+            <th>Valor</th>
+            <th>Acción</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let p of pagosFiltrados" class="table-row">
+            <td class="col-id">#{{ p.id_pago | number:'6.0-0' }}</td>
+            <td>{{ formatFecha(p.fecha_pago) }}</td>
+            <td>
+              <span class="plan-chip">{{ labelDuracion(p.plan_duracion) }}</span>
+            </td>
+            <td class="col-vigencia">
+              {{ formatFecha(p.fecha_inicio_membresia) }} →
+              {{ formatFecha(p.fecha_fin_membresia) }}
+            </td>
+            <td>{{ labelMetodo(p.metodo_pago) }}</td>
+            <td>
+              <span class="badge estado-{{ p.estado_membresia }}">{{ p.estado_membresia }}</span>
+            </td>
+            <td class="col-valor">{{ formatPrecio(p.valor_pagado) }}</td>
+            <td>
+              <button class="btn-recibo" (click)="descargarRecibo(p)" title="Descargar recibo PDF">
+                Recibo PDF
+              </button>
+            </td>
+          </tr>
+          <tr *ngIf="pagosFiltrados.length === 0">
+            <td colspan="8" class="empty-row">
+              {{ pagos.length === 0
+                ? 'Aún no tienes pagos registrados.'
+                : 'No hay pagos con esos filtros.' }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+</ng-container>

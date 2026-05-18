@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { memberMembresiaGuard } from './core/guards/member-membresia.guard';
 
 // LAYOUTS
 import { AdminLayoutComponent } from './layouts/admin-layout/admin-layout.component';
@@ -8,6 +9,7 @@ import { OperadorLayoutComponent } from './layouts/operator-layout/operator-layo
 
 // AUTH
 import { LoginComponent } from './features/auth/pages/login/login.component';
+import { RegisterComponent } from './features/auth/pages/register/register.component';
 
 // ADMIN PAGES
 import { AdminHomeComponent } from './features/admin/pages/admin-home/admin-home.component';
@@ -21,6 +23,7 @@ import { ContenidosPageComponent } from './features/admin/pages/contenidos-page/
 import { OperadoresPageComponent } from './features/admin/pages/operadores-page/operadores-page.component';
 import { DeportesPageComponent } from './features/admin/pages/deportes-page/deportes-page.component';
 import { AdminPerfilPageComponent } from './features/admin/pages/perfil-page/perfil-page.component';
+import { AdminsPageComponent } from './features/admin/pages/admins-page/admins-page.component';
 
 // TRAINER PAGES
 import { MisAlumnosPageComponent } from './features/trainer/pages/mis-alumnos-page/mis-alumnos-page.component';
@@ -44,7 +47,8 @@ import { PerfilPageComponent as OperadorPerfilPageComponent } from './features/o
 
 export const routes: Routes = [
 
-  { path: 'login', component: LoginComponent },
+  { path: 'login',    component: LoginComponent },
+  { path: 'register', component: RegisterComponent },
 
   // =========================
   // ADMIN
@@ -65,6 +69,7 @@ export const routes: Routes = [
       { path: 'operadores',   component: OperadoresPageComponent },
       { path: 'deportes',     component: DeportesPageComponent },
       { path: 'perfil',       component: AdminPerfilPageComponent },
+      { path: 'admins',       component: AdminsPageComponent },
     ]
   },
 
@@ -90,11 +95,11 @@ export const routes: Routes = [
     path: 'member',
     component: MemberLayoutComponent,
     children: [
-      { path: '', redirectTo: 'clases', pathMatch: 'full' }, // ← AGREGADO
-      { path: 'clases',           component: MemberClasesPage },
-      { path: 'contenidos',       component: MemberContenidosPage },
-      { path: 'entrenadores',     component: MemberEntrenadoresPage },
-      { path: 'mis-entrenadores', component: MisEntrenadoresPageComponent },
+      { path: '', redirectTo: 'clases', pathMatch: 'full' },
+      { path: 'clases',           component: MemberClasesPage,           canActivate: [memberMembresiaGuard] },
+      { path: 'contenidos',       component: MemberContenidosPage,       canActivate: [memberMembresiaGuard] },
+      { path: 'entrenadores',     component: MemberEntrenadoresPage,     canActivate: [memberMembresiaGuard] },
+      { path: 'mis-entrenadores', component: MisEntrenadoresPageComponent, canActivate: [memberMembresiaGuard] },
       { path: 'membresias',       component: MembresiasPageComponent },
       { path: 'pagos',            component: MemberPagosPage },
       { path: 'perfil',           component: PerfilPageComponent },

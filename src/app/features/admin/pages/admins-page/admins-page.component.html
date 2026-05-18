@@ -1,0 +1,142 @@
+<div class="page-header">
+  <div class="header-left">
+    <h1>Administradores</h1>
+    <span class="total-badge">{{ adminsFiltrados.length }} registros</span>
+  </div>
+  <button class="btn-primary" (click)="nuevoAdmin()">
+    <span class="icon">+</span> Nuevo Administrador
+  </button>
+</div>
+
+<!-- Filtros -->
+<div class="filtros-bar">
+  <div class="search-wrapper">
+    <span class="search-icon">
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+    </span>
+    <input
+      type="text"
+      placeholder="Buscar por nombre, cédula o correo..."
+      [(ngModel)]="busqueda"
+      class="search-input"
+    />
+  </div>
+</div>
+
+<!-- Estado de carga / error -->
+<div *ngIf="cargando" class="empty-row">Cargando administradores...</div>
+<div *ngIf="error" class="empty-row" style="color:#c62828">{{ error }}</div>
+
+<!-- Tabla -->
+<div class="table-wrapper" *ngIf="!cargando && !error">
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Administrador</th>
+        <th>Cédula</th>
+        <th>Contacto</th>
+        <th>Edad</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let a of adminsFiltrados" class="table-row">
+        <td>
+          <div class="member-cell">
+            <div class="avatar">{{ a.primer_nombre[0] }}{{ a.primer_apellido[0] }}</div>
+            <div class="member-info">
+              <span class="member-name">{{ getNombreCompleto(a) }}</span>
+              <span class="member-sub">Administrador</span>
+            </div>
+          </div>
+        </td>
+        <td class="cedula-cell">{{ a.cedula }}</td>
+        <td>
+          <div class="contact-cell">
+            <span>{{ a.correo }}</span>
+            <span class="phone">{{ a.telefono }}</span>
+          </div>
+        </td>
+        <td>{{ getEdad(a.fecha_nacimiento) }} años</td>
+        <td>
+          <button class="btn-icon btn-ver" (click)="abrirDetalle(a)" title="Ver detalle">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+          </button>
+        </td>
+      </tr>
+      <tr *ngIf="adminsFiltrados.length === 0">
+        <td colspan="5" class="empty-row">No se encontraron administradores.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" *ngIf="mostrarModal" (click)="cerrarModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>{{ modoEdicion ? (esNuevo ? 'Nuevo Administrador' : 'Editar Administrador') : 'Detalle del Administrador' }}</h2>
+      <button class="btn-close" (click)="cerrarModal()">&#x2715;</button>
+    </div>
+
+    <div class="modal-body" *ngIf="adminSeleccionado">
+      <div class="form-section">
+        <h3 class="section-title">Datos Personales</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Cédula</label>
+            <input type="text" [(ngModel)]="adminSeleccionado.cedula" [disabled]="!modoEdicion || !esNuevo" />
+          </div>
+          <div class="form-group">
+            <label>Fecha de Nacimiento</label>
+            <input type="date" [(ngModel)]="adminSeleccionado.fecha_nacimiento" [disabled]="!modoEdicion" [max]="maxFechaNacimiento" />
+          </div>
+          <div class="form-group">
+            <label>Primer Nombre</label>
+            <input type="text" [(ngModel)]="adminSeleccionado.primer_nombre" [disabled]="!modoEdicion" />
+          </div>
+          <div class="form-group">
+            <label>Segundo Nombre</label>
+            <input type="text" [(ngModel)]="adminSeleccionado.segundo_nombre" [disabled]="!modoEdicion" />
+          </div>
+          <div class="form-group">
+            <label>Primer Apellido</label>
+            <input type="text" [(ngModel)]="adminSeleccionado.primer_apellido" [disabled]="!modoEdicion" />
+          </div>
+          <div class="form-group">
+            <label>Segundo Apellido</label>
+            <input type="text" [(ngModel)]="adminSeleccionado.segundo_apellido" [disabled]="!modoEdicion" />
+          </div>
+          <div class="form-group">
+            <label>Correo</label>
+            <input type="email" [(ngModel)]="adminSeleccionado.correo" [disabled]="!modoEdicion" />
+          </div>
+          <div class="form-group">
+            <label>Teléfono</label>
+            <input type="text" [(ngModel)]="adminSeleccionado.telefono" [disabled]="!modoEdicion" />
+          </div>
+          <div class="form-group" *ngIf="esNuevo">
+            <label>Contraseña</label>
+            <input type="password" [(ngModel)]="adminSeleccionado.password" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="error-validacion" *ngIf="errorValidacion">{{ errorValidacion }}</div>
+
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="cerrarModal()">Cancelar</button>
+      <button *ngIf="!modoEdicion" class="btn-danger" (click)="eliminar(adminSeleccionado!.cedula)">Eliminar</button>
+      <button *ngIf="!modoEdicion" class="btn-primary" (click)="modoEdicion = true">Editar</button>
+      <button *ngIf="modoEdicion" class="btn-primary" (click)="guardar()">Guardar</button>
+    </div>
+  </div>
+</div>

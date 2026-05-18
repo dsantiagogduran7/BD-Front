@@ -66,3 +66,9 @@
   background: #e8f5e9; color: #1b5e20; padding: 2px 8px;
   border-radius: 10px; font-weight: 700; font-size: 11px; min-width: 70px; text-align: center;
 }
+.register-btn {
+  width: 100%; padding: 12px; border: 1.5px solid #1b5e20; border-radius: 8px;
+  background: white; color: #1b5e20; font-size: 14px; font-weight: 600;
+  cursor: pointer; transition: all 0.2s; margin-top: 10px;
+}
+.register-btn:hover { background: #f1f8f1; }

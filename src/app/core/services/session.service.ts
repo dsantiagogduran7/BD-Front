@@ -59,6 +59,14 @@ export class SessionService {
     sessionStorage.removeItem(TOKEN_KEY);
   }
 
+  actualizarPerfil(cambios: object): void {
+    const actual = this._perfil();
+    if (!actual) return;
+    const actualizado = { ...actual, ...cambios } as PerfilSesion;
+    this._perfil.set(actualizado);
+    sessionStorage.setItem(SESSION_KEY, JSON.stringify(actualizado));
+  }
+
   // ── Helpers de tipo por rol ───────────────────────────────
   getPerfilMiembro():    MiembroDto    | null { const p = this._perfil(); return p?.rol === 'miembro'    ? p as MiembroDto    : null; }
   getPerfilEntrenador(): EntrenadorDto | null { const p = this._perfil(); return p?.rol === 'entrenador' ? p as EntrenadorDto : null; }

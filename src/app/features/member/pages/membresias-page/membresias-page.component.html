@@ -1,1 +1,133 @@
-<p>membresias-page works!</p>
+<!-- ══════ ALERTAS ═══════════════════════════════════════════════════════════ -->
+<div class="alert alert-ok"    *ngIf="mensajeOk">    ✓ {{ mensajeOk }}</div>
+<div class="alert alert-error" *ngIf="mensajeError"> ✕ {{ mensajeError }}</div>
+
+<!-- ══════ ESTADO CARGA ═══════════════════════════════════════════════════════ -->
+<div *ngIf="cargando" class="estado-cargando">
+  <div class="spinner"></div>
+  <p>Cargando membresías...</p>
+</div>
+<div *ngIf="error && !cargando" class="estado-error">{{ error }}</div>
+
+<ng-container *ngIf="!cargando && !error">
+
+  <!-- ════════════════════════════════════════════════════════════════════════
+       SECCIÓN 1 — MI MEMBRESÍA ACTUAL
+  ═════════════════════════════════════════════════════════════════════════ -->
+  <div class="section-card">
+    <div class="section-header">
+      <div class="section-title-row">
+        <h2>Mi Membresía Actual</h2>
+        <span class="count-badge estado-{{ membresiaActual?.estado ?? 'none' }}">
+          {{ membresiaActual ? membresiaActual.estado : 'Sin plan' }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Sin membresía -->
+    <div *ngIf="!membresiaActual" class="sin-membresia">
+      <div class="sin-icon">🎯</div>
+      <p class="sin-titulo">No tienes una membresía activa</p>
+      <p class="sin-sub">Elige un plan de los disponibles para comenzar.</p>
+    </div>
+
+    <!-- Con membresía -->
+    <div *ngIf="membresiaActual" class="membresia-detalle">
+      <div class="mem-info-grid">
+        <div class="mem-info-item">
+          <span class="mem-label">Plan</span>
+          <span class="mem-value plan-badge">{{ labelDuracion(membresiaActual.plan.duracion) }}</span>
+        </div>
+        <div class="mem-info-item">
+          <span class="mem-label">Precio</span>
+          <span class="mem-value">{{ formatPrecio(membresiaActual.plan.precio) }}</span>
+        </div>
+        <div class="mem-info-item">
+          <span class="mem-label">Inicio</span>
+          <span class="mem-value">{{ formatFecha(membresiaActual.fecha_inicio) }}</span>
+        </div>
+        <div class="mem-info-item">
+          <span class="mem-label">Vencimiento</span>
+          <span class="mem-value">{{ formatFecha(membresiaActual.fecha_fin) }}</span>
+        </div>
+      </div>
+      <div class="mem-acciones">
+        <button class="btn-cancelar-mem" (click)="cancelarMembresia()">Cancelar membresía</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════════════════
+       SECCIÓN 2 — PLANES DISPONIBLES
+  ═════════════════════════════════════════════════════════════════════════ -->
+  <div class="section-card">
+    <div class="section-header">
+      <div class="section-title-row">
+        <h2>{{ membresiaActual ? 'Cambiar de Plan' : 'Planes Disponibles' }}</h2>
+        <span class="count-badge">{{ planesDisponibles.length }}</span>
+      </div>
+    </div>
+
+    <div class="planes-grid">
+      <div *ngFor="let plan of planesDisponibles" class="plan-card">
+        <div class="plan-duracion-icon">{{ labelDuracion(plan.duracion) }}</div>
+        <div class="plan-precio">{{ formatPrecio(plan.precio) }}</div>
+        <div class="plan-sub">por {{ plan.duracion }}</div>
+        <ul class="plan-features">
+          <li>Acceso completo al gimnasio</li>
+          <li>Clases grupales incluidas</li>
+          <li *ngIf="plan.duracion === 'trimestral' || plan.duracion === 'semestral' || plan.duracion === 'anual'">
+            Descuento acumulado
+          </li>
+          <li *ngIf="plan.duracion === 'anual'">Mejor precio por mes</li>
+        </ul>
+        <button class="btn-elegir" (click)="abrirModal(plan)">
+          {{ membresiaActual ? 'Cambiar a este plan' : 'Elegir plan' }}
+        </button>
+      </div>
+
+      <div *ngIf="planesDisponibles.length === 0" class="empty-planes">
+        {{ membresiaActual ? 'Ya tienes el único plan disponible.' : 'No hay planes disponibles.' }}
+      </div>
+    </div>
+  </div>
+
+</ng-container>
+
+<!-- ══════ MODAL DE PAGO ════════════════════════════════════════════════════ -->
+<div class="modal-overlay" *ngIf="mostrarModal" (click)="cerrarModal()">
+  <div class="modal-box" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Confirmar plan</h3>
+      <button class="modal-close" (click)="cerrarModal()">✕</button>
+    </div>
+
+    <div class="modal-body" *ngIf="planSeleccionado">
+      <div class="modal-plan-info">
+        <span class="modal-plan-nombre">Plan {{ labelDuracion(planSeleccionado.duracion) }}</span>
+        <span class="modal-plan-precio">{{ formatPrecio(planSeleccionado.precio) }}</span>
+      </div>
+
+      <p class="modal-aviso" *ngIf="membresiaActual">
+        Tu membresía actual ({{ labelDuracion(membresiaActual.plan.duracion) }}) será suspendida al activar el nuevo plan.
+      </p>
+
+      <div class="form-group">
+        <label class="form-label">Método de pago</label>
+        <select class="form-select" [(ngModel)]="metodoPago">
+          <option value="efectivo">Efectivo</option>
+          <option value="tarjeta_credito">Tarjeta de crédito</option>
+          <option value="tarjeta_debito">Tarjeta de débito</option>
+          <option value="transferencia">Transferencia</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-modal-cancel" (click)="cerrarModal()" [disabled]="procesando">Cancelar</button>
+      <button class="btn-modal-confirm" (click)="confirmarSuscripcion()" [disabled]="procesando">
+        {{ procesando ? 'Procesando...' : 'Confirmar y pagar' }}
+      </button>
+    </div>
+  </div>
+</div>

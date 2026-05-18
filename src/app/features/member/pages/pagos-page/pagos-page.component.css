@@ -1,0 +1,99 @@
+/* ══════════════════════════════════════════════════
+   CARGA / ERROR
+══════════════════════════════════════════════════ */
+.estado-cargando {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 14px; padding: 80px 0; color: #999; font-size: 14px;
+}
+.spinner {
+  width: 36px; height: 36px;
+  border: 3px solid #e0e0e0; border-top-color: #1b5e20;
+  border-radius: 50%; animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.estado-error {
+  background: #fff3f3; border: 1px solid #ffcdd2; border-radius: 12px;
+  color: #c62828; font-size: 14px; padding: 40px; text-align: center;
+}
+
+/* ══════════════════════════════════════════════════
+   SECTION CARD
+══════════════════════════════════════════════════ */
+.section-card {
+  background: white; border-radius: 16px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+  border: 1px solid #f0f0f0; overflow: hidden;
+}
+.section-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 18px 22px 16px; border-bottom: 1px solid #f5f5f5;
+}
+.section-title-row { display: flex; align-items: center; gap: 10px; }
+.section-header h2 { font-size: 17px; font-weight: 700; color: #1a1a1a; margin: 0; }
+.count-badge {
+  background: #1b5e20; color: white;
+  padding: 2px 9px; border-radius: 20px; font-size: 12px; font-weight: 700;
+}
+
+/* ══════════════════════════════════════════════════
+   FILTROS
+══════════════════════════════════════════════════ */
+.filtros {
+  display: flex; gap: 12px; padding: 14px 22px;
+  border-bottom: 1px solid #f5f5f5; flex-wrap: wrap;
+}
+.filtro-select {
+  padding: 9px 12px; border: 1.5px solid #e0e0e0; border-radius: 8px;
+  font-size: 13px; outline: none; background: white; color: #444; min-width: 190px;
+}
+.filtro-select:focus { border-color: #1b5e20; }
+
+/* ══════════════════════════════════════════════════
+   TABLA
+══════════════════════════════════════════════════ */
+.table-wrapper { overflow-x: auto; }
+.data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.data-table thead th {
+  padding: 12px 14px; text-align: left;
+  font-size: 11px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.5px; color: #888; background: #fafafa;
+  border-bottom: 1px solid #f0f0f0;
+}
+.data-table tbody tr { border-bottom: 1px solid #f7f7f7; transition: background 0.12s; }
+.data-table tbody tr:hover { background: #fafff8; }
+.data-table tbody td { padding: 12px 14px; color: #333; vertical-align: middle; }
+
+.col-id    { font-family: monospace; font-size: 13px; color: #888; }
+.col-valor { font-weight: 700; color: #1b5e20; white-space: nowrap; }
+.col-vigencia { font-size: 12px; color: #777; white-space: nowrap; }
+
+.empty-row {
+  text-align: center; padding: 40px; color: #bbb;
+  font-size: 14px; font-style: italic;
+}
+
+/* ── Plan chip ── */
+.plan-chip {
+  background: #e8f5e9; color: #1b5e20;
+  padding: 3px 10px; border-radius: 20px;
+  font-size: 12px; font-weight: 700;
+}
+
+/* ── Badges estado ── */
+.badge {
+  display: inline-block; padding: 3px 10px; border-radius: 20px;
+  font-size: 11px; font-weight: 600; text-transform: capitalize;
+}
+.estado-activa     { background: #e8f5e9; color: #1b5e20; }
+.estado-suspendida,
+.estado-inactiva   { background: #ffebee; color: #c62828; }
+.estado-vencida    { background: #fff3e0; color: #e65100; }
+
+/* ── Botón recibo ── */
+.btn-recibo {
+  background: white; color: #1b5e20; border: 1.5px solid #a5d6a7;
+  padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: 600;
+  cursor: pointer; transition: all 0.2s; white-space: nowrap;
+  display: flex; align-items: center; gap: 5px;
+}
+.btn-recibo:hover { background: #e8f5e9; border-color: #1b5e20; }

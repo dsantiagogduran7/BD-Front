@@ -1,0 +1,74 @@
+.register-container {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  background: linear-gradient(135deg, #1b5e20 0%, #2e7d32 50%, #388e3c 100%);
+  padding: 32px 16px;
+}
+.register-card {
+  width: 100%;
+  max-width: 680px;
+  background: white;
+  padding: 40px;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+}
+
+.register-header { text-align: center; margin-bottom: 28px; }
+.logo-circle {
+  width: 56px; height: 56px; background: #1b5e20; color: white;
+  border-radius: 50%; font-size: 20px; font-weight: 800;
+  display: flex; align-items: center; justify-content: center; margin: 0 auto 12px;
+}
+.register-header h1 { font-size: 24px; font-weight: 800; color: #1a1a1a; margin: 0 0 6px; }
+.subtitle { color: #888; font-size: 14px; margin: 0; }
+
+.error-banner {
+  background: #fce4ec; color: #b71c1c; border: 1px solid #ef9a9a;
+  border-radius: 8px; padding: 10px 14px; font-size: 13px;
+  margin-bottom: 18px; display: flex; align-items: center; gap: 8px;
+}
+
+
+.section-title {
+  font-size: 12px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.5px; color: #1b5e20;
+  margin: 22px 0 14px; padding-bottom: 6px; border-bottom: 2px solid #e8f5e9;
+}
+.section-title:first-of-type { margin-top: 0; }
+
+.form-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 4px;
+}
+.form-grid.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+
+.form-group { display: flex; flex-direction: column; gap: 5px; }
+.form-group label {
+  font-size: 12px; font-weight: 700; color: #444;
+  text-transform: uppercase; letter-spacing: 0.3px;
+}
+.form-group input,
+.form-group select {
+  padding: 10px 13px; border: 1.5px solid #ddd; border-radius: 8px;
+  font-size: 14px; outline: none; transition: border-color 0.2s;
+  background: white; width: 100%; box-sizing: border-box;
+}
+.form-group input:focus,
+.form-group select:focus { border-color: #1b5e20; }
+
+.register-btn {
+  width: 100%; padding: 13px; border: none; border-radius: 8px;
+  background: #1b5e20; color: white; font-size: 15px; font-weight: 700;
+  cursor: pointer; transition: background 0.2s; margin-top: 22px;
+}
+.register-btn:hover:not(:disabled) { background: #2e7d32; }
+.register-btn:disabled { opacity: 0.7; cursor: not-allowed; }
+
+.login-link {
+  text-align: center; margin-top: 16px; font-size: 14px; color: #666;
+}
+.login-link a {
+  color: #1b5e20; font-weight: 700; cursor: pointer; text-decoration: none;
+}
+.login-link a:hover { text-decoration: underline; }
